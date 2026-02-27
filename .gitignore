@@ -1,0 +1,16 @@
+# Arquivos de ambiente com credenciais
+.env
+
+# Evidências de teste (screenshots, vídeos, logs)
+evidence/
+
+# Arquivos compilados do Python
+__pycache__/
+*.pyc
+
+# Ambiente virtual (se usar)
+.venv/
+venv/
+
+# Pasta com arquivos em desenvolvimento
+em_desenvolvimento/

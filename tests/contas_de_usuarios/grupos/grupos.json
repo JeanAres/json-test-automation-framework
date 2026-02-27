@@ -1,0 +1,1113 @@
+{
+  "nome": "Teste Completo - Login + Criar Novo Grupo + Exclusão do Grupo",
+  "descricao": "Faz login automaticamente, cria um novo grupo com todas as configurações adicionando um usuario e por fim exclui",
+  "configuracoes": {
+      "timeout": 30000,
+      "slow_motion": 1000,
+      "largura": 1366,
+      "altura": 768,
+      "idioma": "pt-BR"
+  },
+  "passos": [
+      {
+          "acao": "goto",
+          "url": "{{URL_BASE}}/",
+          "descricao": "Acessar eProd"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500,
+          "descricao": "Aguardar página de login carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "01_tela_login",
+          "descricao": "Screenshot da tela de login"
+      },
+      {
+          "acao": "fill",
+          "seletor": "[name='userName']",
+          "valor": "{{ADMIN_USER}}",
+          "descricao": "Preencher usuário"
+      },
+      {
+          "acao": "fill",
+          "seletor": "[name='password']",
+          "valor": "{{ADMIN_PASS}}",
+          "descricao": "Preencher senha"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Entrar')",
+          "descricao": "Clicar em Entrar"
+      },
+      {
+          "acao": "wait",
+          "tempo": 2000,
+          "descricao": "Aguardar login processar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "02_apos_login",
+          "descricao": "Screenshot após login"
+      },
+      {
+          "acao": "click",
+          "seletor": "span:has-text('Contas de usuário')",
+          "descricao": "Abrir menu Contas de usuário"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1000,
+          "descricao": "Aguardar submenu abrir"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "03_menu_aberto",
+          "descricao": "Screenshot com menu aberto"
+      },
+      {
+          "acao": "click",
+          "seletor": "a[href='/groups']",
+          "descricao": "Clicar em 'Grupos' no submenu"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500,
+          "descricao": "Aguardar página de grupos carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "04_pagina_grupos",
+          "descricao": "Screenshot da página de grupos"
+      },
+      {
+          "acao": "comentario",
+          "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+          "tipo": "separador"
+      },
+      {
+          "acao": "executar_script",
+          "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensASC;",
+          "variavel": "itens_asc",
+          "descricao": "Captura ASC inicial"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "05_order_asc",
+          "descricao": "Screenshot da coluna 'Nome' em ASC"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Nome')",
+          "descricao": "Clique 1 - DESC"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "06_order_desc",
+          "descricao": "Screenshot da coluna 'Nome' em DESC"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500
+      },
+      {
+          "acao": "executar_script",
+          "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensDESC;",
+          "variavel": "itens_desc",
+          "descricao": "Captura DESC"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Nome')",
+          "descricao": "Clique 2 - Volta ASC"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500
+      },
+      {
+          "acao": "executar_script",
+          "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+          "variavel": "resultado_completo",
+          "descricao": "Valida se voltou para ASC inicial"
+      },
+      {
+          "acao": "comentario",
+          "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+          "tipo": "separador"
+      },
+      {
+          "acao": "comentario",
+          "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - TIPO DE GRUPO ===",
+          "tipo": "separador"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Tipo de grupo')",
+          "descricao": "Clique inicial - Ordena em ASC"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500
+      },
+      {
+          "acao": "executar_script",
+          "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); window.itensASC;",
+          "variavel": "itens_asc",
+          "descricao": "Captura ASC inicial"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "07_order_asc_tipo_cargo",
+          "descricao": "Screenshot da coluna 'Tipo de grupo' em ASC"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Tipo de grupo')",
+          "descricao": "Clique 1 - DESC"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500
+      },
+      {
+          "acao": "executar_script",
+          "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); window.itensDESC;",
+          "variavel": "itens_desc",
+          "descricao": "Captura DESC"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "08_order_desc_tipo_cargo",
+          "descricao": "Screenshot da coluna 'Tipo de grupo' em DESC"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Tipo de grupo')",
+          "descricao": "Clique 2 - Volta ASC"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500
+      },
+      {
+          "acao": "executar_script",
+          "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+          "variavel": "resultado_completo",
+          "descricao": "Valida se voltou para ASC inicial"
+      },
+      {
+          "acao": "comentario",
+          "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - TIPO DE GRUPO ===",
+          "tipo": "separador"
+      },
+      {
+          "acao": "click",
+          "seletor": "th:has-text('Situação') button",
+          "descricao": "Clicar para alternar ordenação da coluna 'Situação' "
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguardar reordenação"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "09_ordenado_crescente",
+          "descricao": "Screenshot após ordenação crescente"
+      },
+      {
+          "acao": "click",
+          "seletor": "th:has-text('Situação') button",
+          "descricao": "Clicar novamente para ordenar decrescente"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguardar reordenação"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "10_ordenado_decrescente",
+          "descricao": "Screenshot após ordenação decrescente"
+      },
+      {
+          "acao": "fill",
+          "seletor": "input[placeholder='Valor']",
+          "valor": "teste",
+          "descricao": "Preencher campo de busca"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1000,
+          "descricao": "Aguardar resultados da busca"
+      },
+      {
+          "acao": "press",
+          "seletor": "input[placeholder='Valor']",
+          "tecla": "Escape",
+          "descricao": "Pressionar ESC para sair do campo de busca"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguardar foco sair do campo"
+      },
+      {
+          "acao": "click",
+          "seletor": "#button-change-columns",
+          "descricao": "Clica nas configurações de exibição de colunas"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda o modal das configurações carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "11_config_colunas",
+          "descricao": "Screenshot das configurações de coluna"
+      },
+      {
+          "acao": "uncheck",
+          "seletor": "#name",
+          "descricao": "Desmarca a coluna nome"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda até ser desmarcada a coluna nome"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "12_nome_desmarcada",
+          "descricao": "Screenshot da coluna nome desmarcada"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal button:has-text('Salvar')",
+          "descricao": "Clica em salvar para desativar a coluna"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda a coluna ser desativada"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "13_nome_desativada",
+          "descricao": "Coluna nome desativada"
+      },
+      {
+          "acao": "click",
+          "seletor": "#button-change-columns",
+          "descricao": "Clica nas configurações de exibição de colunas"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda o modal das configurações carregar"
+      },
+      {
+          "acao": "uncheck",
+          "seletor": "#typeName",
+          "descricao": "Desmarca a coluna tipo de grupo"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda até ser desmarcada a coluna tipo de grupo"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "14_tpGrupo_desmarcada",
+          "descricao": "Screenshot da coluna tipo de grupo desmarcada"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal button:has-text('Salvar')",
+          "descricao": "Clica em salvar para desativar a coluna"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda a coluna ser desativada"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "15_nome_desativada",
+          "descricao": "Coluna nome desativada"
+      },
+      {
+          "acao": "click",
+          "seletor": "#button-change-columns",
+          "descricao": "Clica nas configurações de exibição de colunas"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda o modal das configurações carregar"
+      },
+      {
+          "acao": "uncheck",
+          "seletor": "#status",
+          "descricao": "Desmarca a coluna situação"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda até ser desmarcada a coluna situação"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "16_situacao_desmarcada",
+          "descricao": "Screenshot da coluna situação desmarcada"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal button:has-text('Salvar')",
+          "descricao": "Clica em salvar para desativar a coluna"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda a coluna ser desativada"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "17_situacao_desativada",
+          "descricao": "Coluna situação desativada"
+      },
+      {
+          "acao": "click",
+          "seletor": "#button-change-columns",
+          "descricao": "Clica nas configurações de exibição de colunas"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda o modal das configurações carregar"
+      },
+      {
+          "acao": "check",
+          "seletor": "#name",
+          "descricao": "Marcando a coluna nome pra ser ativada"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350,
+          "descricao": "Aguardar até a coluna ser marcada"
+      },
+      {
+          "acao": "check",
+          "seletor": "#typeName",
+          "descricao": "Marcando a coluna tipo de grupo pra ser ativada"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350,
+          "descricao": "Aguardar até a coluna ser marcada"
+      },
+      {
+          "acao": "check",
+          "seletor": "#status",
+          "descricao": "Marcando a coluna situação pra ser ativada"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350,
+          "descricao": "Aguardar até a coluna ser marcada"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "18_colunas_marcadas",
+          "descricao": "Todas colunas marcadas para ficarem ativas"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal button:has-text('Salvar')",
+          "descricao": "Clica em salvar para ativar as colunas"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350,
+          "descricao": "Aguardar o sistema exibir todas as colunas novamente"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "19_colunas_ativadas",
+          "descricao": "Todas colunas ativadas novamente"
+      },
+      {
+          "acao": "click",
+          "seletor": "#clear-filter",
+          "descricao": "Limpando o campo de busca"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350,
+          "descricao": "Aguardar o sistema a limpar o campo de busca"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "20_clear_busca",
+          "descricao": "Limpando o campo de busca"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select-selector >> nth=0",
+          "descricao": "Abre primeiro dropdown"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguarda dropdown abrir completamente"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select-item[title='Situação']",
+          "descricao": "Seleciona filtro 'Situação'"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguarda segundo campo ficar disponível"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "21_primeiro_campo_preenchido",
+          "descricao": "Primeiro campo preenchido"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select-selector >> nth=1",
+          "descricao": "Abre segundo dropdown"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguarda dropdown abrir"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "22_segundo_dropdown_aberto",
+          "descricao": "Segundo dropdown aberto"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select-item:has-text('Igual')",
+          "descricao": "Seleciona operador 'Igual'"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguarda terceiro campo aparecer"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "23_segundo_campo_preenchido",
+          "descricao": "Segundo campo preenchido"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select-selector >> nth=2",
+          "descricao": "Abre terceiro dropdown"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguarda dropdown abrir"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select-item:has-text('Ativo')",
+          "descricao": "Seleciona valor 'Ativo'"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1000,
+          "descricao": "Aguarda o resultado final ser exibido"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "24_resultado_pesquisa",
+          "descricao": "Resultado da pesquisa por grupo com situação ativa"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has(img[alt='Próxima página'])",
+          "descricao": "Avança para a página 2"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguarda a página ser carregada"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "25_avaco_pagina1",
+          "descricao": "Avança 1 página"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has(img[alt='Próxima página'])",
+          "descricao": "Avança para a página 3"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguarda a página ser carregada"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "26_avaco_pagina2",
+          "descricao": "Avança 1 página"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has(img[alt='Última página'])",
+          "descricao": "Avança para a ultima página"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguarda a ultima página carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "27_avanco_lastPage",
+          "descricao": "Avança para a ultima página"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has(img[alt='Ir para paginação incial'])",
+          "descricao": "Avança para a primeira página"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguarda a primeira página carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "28_avanco_firstPage",
+          "descricao": "Avança para a primeira página"
+      },
+      {
+          "acao": "click",
+          "seletor": "#select-field-add-condition",
+          "descricao": "Adiciona mais uma condição ao filtro"
+      },
+      {
+          "acao": "wait",
+          "tempo": 750,
+          "descricao": "Aguardar gerar mais um bloco de condições pro filtro"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "29_advancedFiltro",
+          "descricao": "Screenshot com mais um bloco de condições ao filtro"
+      },
+      {
+          "acao": "fill",
+          "seletor": "input[placeholder='Valor']",
+          "valor": "test",
+          "descricao": "Digita 'teste' no input com placeholder 'Valor'"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1000,
+          "descricao": "Aguarda processamento"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Pesquisar')",
+          "descricao": "Clica para pesquisar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "30_filtro_completo",
+          "descricao": "Screenshot com o filtro avançado completo"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Salvar')",
+          "descricao": "Clica no botão de salvar o filtro"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1000,
+          "descricao": "Aguarda o modal de salvamento carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "31_modal_save_filtro",
+          "descricao": "Screenshot do modal de salvar filtro aberto"
+      },
+      {
+          "acao": "fill",
+          "seletor": "input[placeholder='Digite um nome para o salvamento do filtro']",
+          "valor": "Teste Automatizado",
+          "descricao": "Clica no componente de texto para nomear o filtro salvo"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350,
+          "descricao": "Esperar uns milesimos para o sistema processar corretamente"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "32_nome_filtro",
+          "descricao": "Screenshot do nome do filtro inserido"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal button:has-text('Salvar')",
+          "descricao": "Clica no botão de salvar o filtro"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Espera o sistema a carregar o filtro salvo"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "33_filtro_salvo",
+          "descricao": "Screenshot com o filtro salvo"
+      },
+      {
+          "acao": "click",
+          "seletor": "#clear-filter",
+          "descricao": "Limpando o campo de busca"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguardar o sistema a limpar os filtros"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select-selector >> nth=2 ",
+          "descricao": "Clica no campo de filtros favoritados"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350
+      },
+      {
+          "acao": "click",
+          "seletor": "text=Teste Automatizado",
+          "descricao": "Seleciona o filtro favortidado anteriormente"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Editar')",
+          "descricao": "Acessa a edição do filtro favoritado"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Excluir')",
+          "descricao": "Exclui o filtro favoritado"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350
+      },
+      {
+          "acao": "screenshot",
+          "nome": "34_filtro_excluido",
+          "descricao": "Screenshot após exclusão do filtro fav."
+      },
+      {
+        "acao": "click",
+        "seletor": "#clear-filter",
+        "descricao": "Limpando o campo de busca"
+      },
+      {
+        "acao": "wait",
+        "tempo": 350
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Novo grupo')",
+          "descricao": "Clicar no botão 'Novo grupo'"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500,
+          "descricao": "Aguardar formulário abrir"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "35_formulario_aberto",
+          "descricao": "Screenshot do formulário de novo grupo"
+      },
+      {
+          "acao": "fill",
+          "seletor": "[name='group.name']",
+          "valor": "Grupo Teste Automatizado",
+          "descricao": "Preencher nome do grupo"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "36_nome_preenchido",
+          "descricao": "Screenshot com nome preenchido"
+      },
+      {
+          "acao": "fill",
+          "seletor": "[name='group.alternativeName']",
+          "valor": "GTA",
+          "descricao": "Preencher nome alternativo"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "37_nome_alternativo_preenchido",
+          "descricao": "Screenshot com nome alternativo preenchido"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select >> nth=0",
+          "descricao": "Abrir dropdown de tipo"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1000,
+          "descricao": "Aguardar opções do dropdown"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select-item-option:has-text('Comissão Permanente')",
+          "descricao": "Selecionar 'Comissão Permanente'"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "38_tipo_selecionado",
+          "descricao": "Screenshot com tipo selecionado"
+      },
+      {
+          "acao": "fill",
+          "seletor": "[name='group.description']",
+          "valor": "Grupo Teste Automatizado",
+          "descricao": "Preencher descrição do grupo"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "39_descricao_preenchida",
+          "descricao": "Screenshot com descrição preenchida"
+      },
+      {
+          "acao": "click",
+          "seletor": "button[type='submit']:has-text('Salvar')",
+          "descricao": "Salvar grupo inicial (dados básicos)"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500,
+          "descricao": "Aguardar grupo ser criado"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "40_grupo_criado_basico",
+          "descricao": "Screenshot após criar grupo básico"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-tabs-tab:has-text('Usuários vinculados')",
+          "descricao": "Clicar na aba 'Usuários vinculados'"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500,
+          "descricao": "Aguardar aba carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "41_aba_usuarios",
+          "descricao": "Screenshot da aba de usuários"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('Adicionar usuário')",
+          "descricao": "Clicar em 'Adicionar usuário'"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500,
+          "descricao": "Aguardar modal de adicionar usuário"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "42_modal_adicionar_usuario",
+          "descricao": "Screenshot do modal de adicionar usuário"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal .ant-select",
+          "descricao": "Clicar no campo de busca do modal"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguardar campo ativar"
+      },
+      {
+          "acao": "fill",
+          "seletor": ".ant-modal input.ant-select-selection-search-input",
+          "valor": "jean soares",
+          "descricao": "Buscar por 'jean soares'"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1500,
+          "descricao": "Aguardar resultados da busca"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "43_resultados_busca",
+          "descricao": "Screenshot dos resultados da busca"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-select-item-option:has-text('jean soares')",
+          "descricao": "Selecionar Jean Soares nos resultados"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguardar usuário ser selecionado"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal .ant-switch >> nth=0",
+          "descricao": "Ativar primeiro switch (marcar como Sim)"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "44_primeiro_switch_ativado",
+          "descricao": "Screenshot com primeiro switch ativado"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal .ant-switch >> nth=1",
+          "descricao": "Ativar segundo switch (marcar como Sim)"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "45_segundo_switch_ativado",
+          "descricao": "Screenshot com segundo switch ativado"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal .ant-select >> nth=1",
+          "descricao": "Abrir dropdown de posição"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguardar dropdown abrir"
+      },
+      {
+          "acao": "fill",
+          "seletor": ".ant-modal input.ant-select-selection-search-input >> nth=1",
+          "valor": "suporte nopaper",
+          "descricao": "Digitar 'suporte nopaper'"
+      },
+      {
+          "acao": "wait",
+          "tempo": 800,
+          "descricao": "Aguardar opções do dropdown"
+      },
+      {
+          "acao": "press",
+          "seletor": ".ant-modal input.ant-select-selection-search-input >> nth=1",
+          "tecla": "Enter",
+          "descricao": "Selecionar primeira opção"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "46_posicao_selecionada",
+          "descricao": "Screenshot com posição selecionada"
+      },
+      {
+          "acao": "click",
+          "seletor": ".ant-modal button:has-text('ADICIONAR USUÁRIO')",
+          "descricao": "Confirmar adição do usuário"
+      },
+      {
+          "acao": "wait",
+          "tempo": 2000,
+          "descricao": "Aguardar usuário ser adicionado e modal fechar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "47_grupo_completo_finalizado",
+          "descricao": "Screenshot final - grupo criado com usuário"
+      },
+      {
+          "acao": "goto",
+          "url": "{{URL_BASE}}/groups",
+          "descricao": "Retorna para a página de consulta de grupos"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350,
+          "descricao": "Aguarda o sistema carregar a página"
+      },
+      {
+          "acao": "fill",
+          "seletor": "input[placeholder='Valor']",
+          "valor": "Grupo Teste Automatizado",
+          "descricao": "Preencher campo de busca"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1000,
+          "descricao": "Aguardar resultados da busca"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "48_resultado_busca",
+          "descricao": "Screenshot com resultado da busca"
+      },
+      {
+          "acao": "press",
+          "seletor": "input[placeholder='Valor']",
+          "tecla": "Escape",
+          "descricao": "Pressionar ESC para sair do campo de busca"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguardar foco sair do campo"
+      },
+      {
+          "acao": "click",
+          "seletor": "button.button-actions",
+          "descricao": "Clicar no botão de ações do grupo"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "49_menu_acoes_aberto",
+          "descricao": "Screenshot com menu de ações aberto"
+      },
+      {
+          "acao": "click",
+          "seletor": "text=Editar",
+          "descricao": "Clica na opção de editar o grupo"
+      },
+      {
+          "acao": "wait",
+          "tempo": 300,
+          "descricao": "Aguarda a tela de edição do grupo carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "50_tela_edicao_grupo",
+          "descricao": "Screenshot com a tela de edição do grupo aberta"
+      },
+      {
+          "acao": "click",
+          "seletor": "text=Usuários vinculados",
+          "descricao": "Navega até a seção de usuarios do grupo"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350,
+          "descricao": "Aguarda a tela de usuarios carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "51_tela_usuarios_grupo",
+          "descricao": "Screenshot dos usuario que estão no grupo"
+      },
+      {
+          "acao": "click",
+          "seletor": ".button-actions",
+          "descricao": "Clica na ação de edições do usuario no grupo"
+      },
+      {
+          "acao": "wait",
+          "tempo": 350,
+          "descricao": "Aguarda carregar o menu de edições do usuario"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "52_menu_edicao_usuario",
+          "descricao": "Screenshot das opções de edição do usuario que está no grupo"
+      },
+      {
+          "acao": "click",
+          "seletor": "text=Excluir",
+          "descricao": "Clica em excluir o usuario do grupo"
+      },
+      {
+          "acao": "wait",
+          "tempo": 170,
+          "descricao": "Aguardar para ser exibido a janela de exclusão de usuario"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "53_tela_exclusao_usuario",
+          "descricao": "Screenshot da janela de exclusão do usuario"
+      },
+      {
+          "acao": "click",
+          "seletor": ".buttons-alert button:has-text('Excluir')",
+          "descricao": "Clica no botão Excluir dentro do container correto"
+      },
+      {
+          "acao": "wait",
+          "tempo": 300,
+          "descricao": "Aguarda carregar o grupo, agora sem nenhum usuario"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "54_usuario_excluido",
+          "descricao": "Screenshot do grupo sem nenhum usuario"
+      },
+      {
+          "acao": "goto",
+          "url": "{{URL_BASE}}/groups",
+          "descricao": "Retorna para a pagina inicial de consulta de grupos"
+      },
+      {
+          "acao": "wait",
+          "tempo": 1000,
+          "descricao": "Aguarda carregar a tela de grupos"
+      },
+      {
+          "acao": "click",
+          "seletor": "button.button-actions",
+          "descricao": "Clicar no botão de ações do grupo"
+      },
+      {
+          "acao": "click",
+          "seletor": "text=Excluir",
+          "descricao": "Clica em excluir o grupo"
+      },
+      {
+          "acao": "click",
+          "seletor": "button:has-text('EXCLUIR')",
+          "descricao": "Clica no botão EXCLUIR do modal de excluir grupo"
+      },
+      {
+          "acao": "wait",
+          "tempo": 500,
+          "descricao": "Aguardar a tela de grupos carregar"
+      },
+      {
+          "acao": "screenshot",
+          "nome": "55_grupo_excluido",
+          "descricao": "Grupo excluido"
+      }
+  ]
+}

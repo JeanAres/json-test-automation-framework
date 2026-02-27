@@ -1,0 +1,85 @@
+{
+    "nome": "Teste Completo - Login + Testar todas as funcionabilidades da tela",
+    "descricao": "Faz login automaticamente e depois testa todos os funcionamentos dísponiveis na sub-categoria 'perfis de usuários'",
+    "configuracoes":{
+        "timeout":20000,
+        "slow_motion":1000,
+        "largura":1366,
+        "altura":768,
+        "idioma":"pt-BR"
+    },
+    "passos": [
+        {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/",
+            "descricao": "Acessar eProd"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500,
+            "descricao": "Aguardar página de login carregar"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "01_tela_login",
+            "descricao": "Screenshot da tela de login"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='userName']",
+            "valor": "{{ADMIN_USER}}",
+            "descricao": "Preencher usuário"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='password']",
+            "valor": "{{ADMIN_PASS}}",
+            "descricao": "Preencher senha"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Entrar')",
+            "descricao": "Clicar em Entrar"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1400,
+            "descricao": "Aguardar login processar"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "02_apos_login",
+            "descricao": "Screenshot após login"
+        },
+        {
+            "acao": "click",
+            "seletor": "span:has-text('Contas de usuário')",
+            "descricao": "Abrir menu Contas de usuário"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1000,
+            "descricao": "Aguardar submenu abrir"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "02_menu_aberto",
+            "descricao": "Screenshot com menu aberto"
+        },
+        {
+            "acao": "click",
+            "seletor": "a[href='/roles']",
+            "descricao": "Clica em 'Perfis de usuários' no submenu"
+        },
+        {
+           "acao": "wait",
+           "tempo": 1500,
+           "descricao": "Aguarda a página carregar"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "03_page_search",
+            "descricao": "Screenshot da página de consulta de Perfis aberta"
+        }
+    ]
+}

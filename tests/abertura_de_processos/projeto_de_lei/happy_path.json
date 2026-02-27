@@ -1,0 +1,459 @@
+{
+    "nome": "Fluxo completo de um Projeto de Lei pelo caminho 'feliz' - Gabinete (Fase 1)",
+    "descricao": "Processo passa por Gabinete (abertura) > Legislativa (autuação e possíveis encaminhamentos)> Comissão (Ex: CCJ)",
+    "configuracoes": {
+        "timeout": 20000,
+        "slow_motion": 1000,
+        "largura": 1366,
+        "altura": 768,
+        "idioma": "pt-BR"
+    },
+
+    "variaveis_globais": {
+        "numero_processo": null,
+        "etapa_atual": null
+    },
+
+    "cenarios": [
+        {
+            "id": "gabinete_abertura",
+            "nome": "[FASE 1] Gabinete - Abertura de Processo de Projeto de Lei",
+            "papel": "Deputado Proponente",
+            "descricao": "Deputado proponente abre processo do tipo 'Projeto de Lei', preenche formulário inicial, assina e envia para protocolo",
+            "variaveis_saida": ["numero_processo"],
+            "passos":[
+                {
+                    "acao": "comentario",
+                    "mensagem": "========== ETAPA: GABINETE ==========",
+                    "tipo": "separador"
+                },
+                {
+                    "acao": "comentario",
+                    "mensagem": "Papel: Deputado Proponente",
+                    "tipo": "papel"
+                },
+                {
+                    "acao": "goto",
+                    "url": "{{URL_BASE}}/",
+                    "descricao": "Acessar eProd - Fazendo papel de Deputado (Proponente) - Gabinete"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 1500,
+                    "descricao": "Aguardar carregamento"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_01_tela_login",
+                    "descricao": "Screenshot da tela de login do Gabinete"
+                },
+                {
+                    "acao": "fill",
+                    "seletor": "[name='userName']",
+                    "valor": "{{DEPUTADO_USER}}",
+                    "descricao": "Preenche usuario do Deputado - Gabinete"
+                },
+                {
+                    "acao": "fill",
+                    "seletor": "[name='password']",
+                    "valor": "{{DEPUTADO_PASS}}",
+                    "descricao": "Preenche senha do Deputado - Gabinete"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_02_credenciais_preenchidas",
+                    "descricao": "Credenciais do Deputado (Gabinete) preenchidas"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "button:has-text('Entrar')",
+                    "descricao": "Efetuar login como Gabinete"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 2000,
+                    "descricao": "Processar login"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_03_login_sucess",
+                    "descricao": "Screenshot da primeira tela do sistema"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "button:has-text('Abrir processo')",
+                    "descricao": "Abrir processo"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_04_opcoes_abertura",
+                    "descricao": "Screenshot da tela de opções de abertura de processos"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 1000,
+                    "descricao": "Carregar opções de formulários"
+                },
+                {
+                    "acao": "click",
+                    "seletor": ".fnp-start:nth-of-type(1)",
+                    "descricao": "Selecionar formulário de abertura"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 1500,
+                    "descricao": "Carregar formulário de abertura"
+                },
+                {
+                    "acao": "click",
+                    "seletor": ".form-control.ui.fluid.selection.dropdown",
+                    "descricao": "Abrir dropdown"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 500,
+                    "descricao": "Aguardar dropdown"
+                },
+                {
+                    "acao": "click",
+                    "seletor": ".choices__list .choices__item:nth-child(4)",
+                    "descricao": "Selecionar 'Projeto de Lei' como tipo"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 500,
+                    "descricao": "Confirmar seleção do tipo"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_05_form_abertura",
+                    "descricao": "Formulário de abertura preenchido com tipo 'Projeto de Lei'"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "button:has-text('Abrir processo')",
+                    "descricao": "Confirmar abertura do processo"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 6000,
+                    "descricao": "Aguardar criação e redirecionamento"
+                },
+                {
+                    "acao": "executar_script",
+                    "script": "(function() { const todoTexto = document.body.innerText || ''; const match = todoTexto.match(/Processo:\\s*(\\d+\\s*\\/\\s*\\d+)/i); return match ? match[1].replace(/\\s+/g, '') : 'NÃO CAPTURADO'; })()",
+                    "variavel": "numero_processo",
+                    "descricao": "Capturar número do processo"
+                },
+                {
+                    "acao": "log",
+                    "mensagem": "Processo criado: {{numero_processo}}",
+                    "nivel": "SUCESS"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_06_detalhes_tarefa",
+                    "descricao": "Screenshot da tela de detalhes da tarefa do processo criado"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "textarea[name=\"data[camposDoFormulario][ementaRtf]\"]",
+                    "descricao": "Clica no campo da Ementa para preenchimento"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 450,
+                    "descricao": "Aguarda foco no campo Ementa"
+                },
+                {
+                    "acao": "fill",
+                    "seletor": "textarea[name=\"data[camposDoFormulario][ementaRtf]\"]",
+                    "valor": "@arquivo:evidence/textos_teste/ementa_teste.txt",
+                    "descricao": "Preenche o campo da Ementa com texto do arquivo"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 450,
+                    "descricao": "Aguarda procesamento da Ementa"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_07_ementa_inserida",
+                    "descricao": "Screenshot da Ementa inserida no formulário"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "input[placeholder='Clique aqui para acessar o editor de texto']",
+                    "descricao": "Acessar editor de texto do processo"
+                },
+                {
+                    "acao": "wait",
+                    "seletor": "#_View",
+                    "descricao": "Aguarda a janela modal do DevExpress abrir"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_08_modal_devexpress_aberta",
+                    "descricao": "Screenshot do Modal do DevExpress aberto para inserir o texto"
+                },
+                {
+                    "acao": "fill_devexpress",
+                    "seletor": "#_View",
+                    "valor": "@arquivo:evidence/textos_teste/texto_teste.txt",
+                    "limpar_antes": true,
+                    "delay": 0,
+                    "descricao": "Preenche o campo DevExpress com texto do arquivo"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 2000,
+                    "descricao": "Aguarda o texto ser processado no editor"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_09_texto_inserido_devexpress",
+                    "descricao": "Screenshot após inserir o texto no DevExpress"
+                },
+                {
+                    "acao": "click",
+                    "seletor": ".ant-modal-close",
+                    "descricao": "Clica no botão de fechar o modal do texto"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 900,
+                    "descricao": "Aguarda modal fechar completamente"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_10_modal_fechado",
+                    "descricao": "Screenshot após fechar o modal e retornar ao formulário"
+                },
+                {
+                    "acao": "click",
+                    "seletor": ".sc-dPiKHq.eUHtUu input[placeholder='Clique aqui para acessar o editor de texto']",
+                    "descricao": "Acessar edior de justificativa do processo"
+                },
+                {
+                    "acao": "wait",
+                    "seletor": "xpath=(//*[@id='_View'])[last()]",
+                    "descricao": "Aguardar segunda modal DevExpress abrir (justificativa)"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 500,
+                    "descricao": "Aguarda a modal carregar completamente"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_11_modal_justificativa_aberta",
+                    "descricao": "Screenshot do modal DevExpress da justificativa aberta"
+                },
+                {
+                    "acao": "fill_devexpress",
+                    "seletor": "xpath=(//*[@id='_View'])[last()]",
+                    "valor": "@arquivo:evidence/textos_teste/justificativa_teste.txt",
+                    "limpar_antes": true,
+                    "delay": 0,
+                    "descricao": "Preencher justificativa do processo"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_12_justificativa_inserida",
+                    "descricao": "Screenshot após inserir a justificativa"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "xpath=(//button[@aria-label='Close'])[last()]",
+                    "descricao": "Clica no botão de fechar o modal da justificativa"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 1000,
+                    "descricao": "Aguarda o sistema fechar corretamente o modal"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "xpath=//*[contains(text(), 'Documentos') or contains(@aria-label, 'Documentos')]",
+                    "descricao": "Acessar seção de documentos do processo"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 1000,
+                    "descricao": "Aguardar seção de documentos carregar"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_13_documentos_abertos",
+                    "descricao": "Screenshot da seção de documentos abertos"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "button:has-text('Capturar documento')",
+                    "descricao": "Clica no botão de capturar documento"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 350,
+                    "descricao": "Aguardar menu de opções de documento"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "xpath=//*[contains(text(), 'Novo Documento')]",
+                    "descricao": "Clica na opção de 'Novo Documento'"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 1000,
+                    "descricao": "Aguardar modal de criação de documento"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_14_modal_criacao_doc",
+                    "descricao": "Modal de criação de um novo documento"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "[data-testid='antselect-documentTypeId']",
+                    "descricao": "Clica no dropdown de tipo de documento"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 500,
+                    "descricao": "Aguardar dropdown carregar"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "div.ant-select-item[title='Teste Automatizado']",
+                    "descricao": "Selecionar tipo 'Teste Automatizado'"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 700,
+                    "descricao": "Aguardar seleção ser confirmada"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "input[placeholder='Crie um nome para seu documento']",
+                    "descricao": "Focar no campo de nome do documento"
+                },
+                {
+                    "acao": "fill",
+                    "seletor": "input[placeholder='Crie um nome para seu documento']",
+                    "valor": "Teste automatizado {{numero_processo}}",
+                    "descricao": "Inseri nome pro documento + número do processo"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 400,
+                    "descricao": "Aguarda sistema processar nome"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_15_modal_create_doc_complete",
+                    "descricao": "Screenshot com Modal de criação completo com nome do documento"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "button:has-text('CRIAR DOCUMENTO')",
+                    "descricao": "Clica no botão de Criar o documento"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 1000,
+                    "descricao": "Aguarda o modal carregar completamente"
+                },
+                {
+                    "acao": "fill_devexpress",
+                    "seletor": "xpath=(//*[@id='_View'])[last()]",
+                    "valor": "@arquivo:evidence/textos_teste/anexo_teste.txt",
+                    "limpar_antes": true,
+                    "delay": 0,
+                    "descricao": "Preenche _View visível"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 1000,
+                    "descricao": "Aguarda o sistema processar o texto inserido"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_16_anexo_digitado",
+                    "descricao": "Screenshot com o texto do documento inserido"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "xpath=(//div[@class='ant-modal-content'])[last()]//button[.//div[text()='Salvar']]",
+                    "descricao": "Clica no botão de Salvar o texto"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 3000,
+                    "descricao": "Aguarda o sistema a salvar o documento"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_17_doc_avulso_complet",
+                    "descricao": "Screenshot do documento avulso inserido e salvo na arvore de docs"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "xpath=//div[contains(text(),'Teste automatizado')]",
+                    "descricao": "Clica no nome do documento para visualizar"
+                },
+                {
+                    "acao": "screenshot",
+                    "nome": "gabinete_18_vizu_doc_avulso",
+                    "descricao": "Screenshot pra visualizar se está tudo correto com o doc avulso inserido"
+                },
+                {
+                    "acao": "wait",
+                    "tempo": 1000,
+                    "descricao": "Aguarda o sistema exibir o documento"
+                }
+            ]
+        },
+        {
+            "id": "legislativa_analise",
+            "nome": "[FASE 2] Legislativa - Analise para o processo ser autuado",
+            "papel": "Divisão de tramitação 1 ou 2",
+            "descricao": "Legislativa recebe o processo para autuar e posteriormente enviar à uma comissão",
+            "pre_condicao": "{{numero_processo}} != null && {{numero_processo}} != 'NÃO CAPTURADO'",
+            "ativa": false,
+            "passos": [
+                {
+                    "acao": "comentario",
+                    "mensagem": "========== ETAPA: LEGISLATIVA ==========",
+                    "tipo": "separador"
+                },
+                {
+                    "acao": "comentario",
+                    "mensagem": "Papel: Legislativa | Processo: {{numero_processo}}",
+                    "tipo": "papel"
+                },
+                {
+                    "acao": "goto",
+                    "url": "{{URL_BASE}}/",
+                    "descricao": "Acessar eProd como Legislativa"
+                },
+                {
+                    "acao": "fill",
+                    "seletor": "[name='userName']",
+                    "valor": "{{DIRETOR_USER}}",
+                    "descricao": "Preenche usuario da Legislativa"
+                },
+                {
+                    "acao": "fill",
+                    "seletor": "[name='password']",
+                    "valor": "{{DIRETOR_PASS}}",
+                    "descricao": "Preenche senha da Legislativa"
+                },
+                {
+                    "acao": "click",
+                    "seletor": "button:has-text('Entrar')",
+                    "descricao": "Efetuar login como Legislativa"
+                }
+            ]
+        }
+    ]
+}

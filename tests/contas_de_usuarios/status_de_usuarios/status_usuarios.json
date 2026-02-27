@@ -1,0 +1,481 @@
+{
+    "nome": "Teste Completo - Login + Testar todas as funcionabilidades da tela",
+    "descricao": "Faz login automaticamente e depois testa todos os funcionamentos dísponiveis na sub-categoria 'status de usuários'",
+    "configuracoes":{
+        "timeout":20000,
+        "slow_motion":1000,
+        "largura":1366,
+        "altura":768,
+        "idioma":"pt-BR"
+    },
+    "passos": [
+        {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/",
+            "descricao": "Acessar eProd"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500,
+            "descricao": "Aguardar página de login carregar"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "01_tela_login",
+            "descricao": "Screenshot da tela de login"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='userName']",
+            "valor": "{{ADMIN_USER}}",
+            "descricao": "Preencher usuário"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='password']",
+            "valor": "{{ADMIN_PASS}}",
+            "descricao": "Preencher senha"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Entrar')",
+            "descricao": "Clicar em Entrar"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1400,
+            "descricao": "Aguardar login processar"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "02_apos_login",
+            "descricao": "Screenshot após login"
+        },
+        {
+            "acao": "click",
+            "seletor": "span:has-text('Contas de usuário')",
+            "descricao": "Abrir menu Contas de usuário"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1000,
+            "descricao": "Aguardar submenu abrir"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "02_menu_aberto",
+            "descricao": "Screenshot com menu aberto"
+        },
+        {
+            "acao": "click",
+            "seletor": "a[href='/account-status']",
+            "descricao": "Clica em 'Status de usuários' no submenu"
+        },
+        {
+           "acao": "wait",
+           "tempo": 1500,
+           "descricao": "Aguarda a página carregar"
+        },
+        {
+            "acao": "comentario",
+            "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "executar_script",
+            "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensASC;",
+            "variavel": "itens_asc",
+            "descricao": "Captura ASC inicial"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "03_order_asc",
+            "descricao": "Screenshot da coluna 'Nome' em ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo":350
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 1 - DESC"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "04_order_asc",
+            "descricao": "Screenshot da coluna 'Nome' em DESC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500
+        },
+        {
+            "acao": "executar_script",
+            "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensDESC;",
+            "variavel": "itens_desc",
+            "descricao": "Captura DESC"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 2 - Volta ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500
+        },
+        {
+            "acao": "executar_script",
+            "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+            "variavel": "resultado_completo",
+            "descricao": "Valida se voltou para ASC inicial"
+        },
+        {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "comentario",
+            "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - TIPO DE CÓDIGO ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Código')",
+            "descricao": "Clique inicial - Ordena em ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500
+        },
+        {
+            "acao": "executar_script",
+            "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); window.itensASC;",
+            "variavel": "itens_asc",
+            "descricao": "Captura ASC inicial"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "05_order_asc_nome",
+            "descricao": "Screenshot da coluna 'Código' em ASC"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Código')",
+            "descricao": "Clique 1 - DESC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500
+        },
+        {
+            "acao": "executar_script",
+            "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); window.itensDESC;",
+            "variavel": "itens_desc",
+            "descricao": "Captura DESC"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "06_order_desc_nome",
+            "descricao": "Screenshot da coluna 'Código' em DESC"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Código')",
+            "descricao": "Clique 2 - Volta ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500
+        },
+        {
+            "acao": "executar_script",
+            "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+            "variavel": "resultado_completo",
+            "descricao": "Valida se voltou para ASC inicial"
+        },
+        {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - CÓDIGO ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "tado",
+            "descricao": "Consulta por status com palavra incompleta"
+        },
+        {
+            "acao": "wait",
+            "tempo": 650,
+            "descricao": "Aguarda o sistema carregar o resultado"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "07_consulta_nome",
+            "descricao": "Screenshot da consulta sendo feita por nome"
+        },
+        {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=0",
+            "descricao": "Clica no primeiro campo da pesquisa"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar o dropdown"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item-option-content:has-text('Código')",
+            "descricao": "Altera a consulta de 'Nome' para 'Código'"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar o dropdown"
+        },
+        {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "FA",
+            "descricao": "Consulta por código com palavra incompleta"
+        },
+        {
+            "acao": "wait",
+            "tempo": 650,
+            "descricao": "Aguarda o sistema exibir os resultados"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "08_consulta_codigo",
+            "descricao": "Screenshot da consulta sendo feita por código"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Limpa a pesquisa"
+        },
+        {
+            "acao": "wait",
+            "tempo": 650,
+            "descricao": "Aguarda o sistema limpar a pesquisa"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Novo status de usuários')",
+            "descricao": "Clica para ir à tela de criação"
+        },
+        {
+            "acao": "wait",
+            "tempo": 650,
+            "descricao": "Aguarda o sistema carregar a tela"
+        },
+        {
+            "acao": "fill",
+            "seletor": "input[placeholder='Informe o nome']",
+            "valor": "Teste Automatizado",
+            "descricao": "Inseri o nome do novo status"
+        },
+        {
+            "acao": "fill",
+            "seletor": "input[placeholder='Informe o status']",
+            "valor": "TA",
+            "descricao": "Inseri o código do status"
+        },
+        {
+            "acao": "fill",
+            "seletor": "textarea[placeholder^='Descreva aqui as principais']",
+            "valor": "Teste Automatizado",
+            "descricao": "Inseri a descrição do status"
+        },
+        {
+            "acao": "wait",
+            "tempo": 650,
+            "descricao": "Visualizar se está tudo correto"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "09_form_creation_complet",
+            "descricao": "Screenshot da tela de criação completa"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Salvar')",
+            "descricao": "Cria o novo status de usuario"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema criar o status"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "10_status_create",
+            "descricao": "Screenshot do status criado"       
+        },
+        {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/account-status",
+            "descricao": "Retorna para a página de pesquisa"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda a página carregar"
+        },
+        {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "Teste Automatizado",
+            "descricao": "Pesquisa pelo status criado"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar a página com o resultado"
+        },
+        {
+            "acao": "click",
+            "seletor": "button.button-actions",
+            "descricao": "Clica no menu de ações do resultado"
+        },
+        {
+            "acao": "wait",
+            "tempo": 450,
+            "descricao": "Aguarda o sistema carregar o menu de ações"
+        },
+        {
+            "acao": "click",
+            "seletor": "li:has-text('Ativar / Desativar')",
+            "descricao": "Desativa o status"
+        },
+        {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema desativar o status"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "11_status_desable",
+            "descricao": "Screenshot do status desativado"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Limpa o filtro ativo"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema limpar a pesquisa"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Situação')",
+            "descricao": "Clica para ordenar a coluna 'Situação'"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema realizar a primeira ordenação"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Situação')",
+            "descricao": "Clica para ordenar a coluna 'Situação'"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema realizar a segunda ordenação"
+        },
+        {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=0",
+            "descricao": "Clica no primeiro campo de pesquisa"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar o dropdown"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item-option-content:has-text('Situação')",
+            "descricao": "Altera a consulta de 'Nome' para 'Situação'"
+        },
+        {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=2",
+            "descricao": "Clica no terceiro campo de pesquisa"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar o dropdown"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item-option-content:has-text('Inativo')",
+            "descricao": "Filtra os resultados para exibir somente com a situação 'Inativo'"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar os resultados"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "12_situation_search",
+            "descricao": "Screenshot da pesquisa por situação inativo"
+        },
+        {
+            "acao": "click",
+            "seletor": "button.button-actions",
+            "descricao": "Clica no menu de ações do resultado"
+        },
+        {
+            "acao": "wait",
+            "tempo": 450,
+            "descricao": "Aguarda o sistema carregar o menu de ações"
+        },
+        {
+            "acao": "click",
+            "seletor": "li:has-text('Excluir')",
+            "descricao": "Clica para excluir o status"
+        },
+        {
+            "acao": "wait",
+            "tempo": 450,
+            "descricao": "Aguarda o sistema carregar o modal de exclusão"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('EXCLUIR')",
+            "descricao": "Exclui permanentemente o status"
+        },
+        {
+            "acao": "wait",
+            "tempo": 450,
+            "descricao": "Aguarda o sistema excluir o status"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "13_deleted_status",
+            "descricao": "Status de usuario excluido permanentemente"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao":"Limpa o filtro ativo"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema limpar a pesquisa"
+        }
+    ]
+}

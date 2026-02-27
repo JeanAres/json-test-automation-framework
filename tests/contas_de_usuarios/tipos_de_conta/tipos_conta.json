@@ -1,0 +1,671 @@
+{
+    "nome": "Teste Completo - Login + Testar todas as funcionabilidades da tela",
+    "descricao": "Faz login automaticamente e depois testa todos os funcionamentos dísponiveis na sub-categoria 'tipos de conta'",
+    "configuracoes":{
+        "timeout":20000,
+        "slow_motion":1000,
+        "largura":1366,
+        "altura":768,
+        "idioma":"pt-BR"
+    },
+    "passos": [
+          {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/",
+            "descricao": "Acessar eProd"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500,
+            "descricao": "Aguardar página de login carregar"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "01_tela_login",
+            "descricao": "Screenshot da tela de login"
+          },
+          {
+            "acao": "fill",
+            "seletor": "[name='userName']",
+            "valor": "{{ADMIN_USER}}",
+            "descricao": "Preencher usuário"
+          },
+          {
+            "acao": "fill",
+            "seletor": "[name='password']",
+            "valor": "{{ADMIN_PASS}}",
+            "descricao": "Preencher senha"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Entrar')",
+            "descricao": "Clicar em Entrar"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1400,
+            "descricao": "Aguardar login processar"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "02_apos_login",
+            "descricao": "Screenshot após login"
+          },
+          {
+            "acao": "click",
+            "seletor": "span:has-text('Contas de usuário')",
+            "descricao": "Abrir menu Contas de usuário"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1000,
+            "descricao": "Aguardar submenu abrir"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "02_menu_aberto",
+            "descricao": "Screenshot com menu aberto"
+          },
+          {
+            "acao": "click",
+            "seletor": "a[href='/account-types']",
+            "descricao": "Clica em 'Tipos de conta' no submenu"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500,
+            "descricao": "Aguarda página carregar"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensASC;",
+            "variavel": "itens_asc",
+            "descricao": "Captura ASC inicial"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "03_order_asc",
+            "descricao": "Screenshot da coluna 'Nome' em ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo":350
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 1 - DESC"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "04_order_asc",
+            "descricao": "Screenshot da coluna 'Nome' em DESC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensDESC;",
+            "variavel": "itens_desc",
+            "descricao": "Captura DESC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 2 - Volta ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+            "variavel": "resultado_completo",
+            "descricao": "Valida se voltou para ASC inicial"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Origem')",
+            "descricao": "Clica para ordenar a coluna 'Origem' em ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "05_order_asc",
+            "descricao": "Screenshot da coluna 'Origem' em ASC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Origem')",
+            "descricao": "Clica para ordenar a coluna 'Origem' em DESC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "06_order_desc",
+            "descricao": "Screenshot da coluna 'Origem' em DESC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Personalidade')",
+            "descricao": "Clica para ordenar a coluna 'Personalidade' em ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "07_order_asc",
+            "descricao": "Screenshot da coluna 'Personalidade' em ASC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Personalidade')",
+            "descricao": "Clica para ordenar a coluna 'Personalidade' em DESC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "08_order_desc",
+            "descricao": "Screenshot da coluna 'Personalidade' em DESC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Tipo de Pessoa Jurídica')",
+            "descricao": "Clica para ordenar a coluna 'Tipo de Pessoa Jurídica' em ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "09_order_asc",
+            "descricao": "Screenshot da coluna 'Tipo de Pessoa Jurídica' em ASC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Tipo de Pessoa Jurídica')",
+            "descricao": "Clica para ordenar a coluna 'Tipo de Pessoa Jurídica' em DESC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "09_order_desc",
+            "descricao": "Screenshot da coluna 'Tipo de Pessoa Jurídica' em DESC"
+          },
+          {
+            "acao": "click",
+            "seletor":"button:has-text('Grupos Padrões')",
+            "descricao": "Clica para ordenar a coluna 'Grupos Padrões' em ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "10_order_asc",
+            "descricao": "Screenshot da coluna 'Grupos Padrões' em ASC"
+          },
+          {
+            "acao": "click",
+            "seletor":"button:has-text('Grupos Padrões')",
+            "descricao": "Clica para ordenar a coluna 'Grupos Padrões' em DESC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "11_order_desc",
+            "descricao": "Screenshot da coluna 'Grupos Padrões' em DESC"
+          },
+          {
+            "acao": "click",
+            "seletor": "input[placeholder='Valor']",
+            "descricao": "Clica no campo de inserir o nome para buscar"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "adm",
+            "descricao": "Preeche o campo do nome com o valor 'adm' "
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "12_pesquisa_nome",
+            "descricao": "Screenshot da pesquisa sendo feita pelo parametro 'Nome'"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Clica no botão de limpar a pesquisa"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector",
+            "descricao": "Clica para alterar o parametro de pesquisa"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option:has-text('Origem')",
+            "descricao": "Escolhe o parametro de 'Origem' "
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=2",
+            "descricao": "Clica no campo de escolher o resultado desejado (Externa ou Interna)"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option-content:has-text('Externa')",
+            "descricao": "Escolhe a opção 'Externa' do dropdown"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "13_pesquisa_origem",
+            "descricao": "Screenshot da pesquisa sendo feita pelo parametro 'Origem' "
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Clica no botão de limpar a pesquisa"
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector",
+            "descricao": "Clica para alterar o parametro de pesquisa"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option:has-text('Personalidade')",
+            "descricao": "Escolhe o parametro de 'Personalidade' "
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=2",
+            "descricao": "Clica no campo de escolher o resultado desejado (Pessoa Jurídica ou Fisica)"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='Pessoa Jurídica']",
+            "descricao": "Escolhe a opção 'Pessoa Jurídica' do dropdown"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "14_pesquisa_personalidae",
+            "descricao": "Screenshot da pesquisa sendo feita pelo parametro 'Personalidade' "
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Clica no botão de limpar a pesquisa"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector",
+            "descricao": "Clica para alterar o parametro de pesquisa"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option:has-text('Tipo de Pessoa Jurídica')",
+            "descricao": "Escolhe o parametro de 'Tipo de Pessoa Jurídica' "
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=2",
+            "descricao": "Clica no campo de escolher o resultado desejado (Direito Privado, Público ou não se aplica)"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='Direito Público']",
+            "descricao": "Escolhe a opção 'Direito Público' do dropdown"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "15_pesquisa_people_juridica",
+            "descricao": "Screenshot da pesquisa sendo feita pelo parametro 'Tipo de Pessoa Jurídica' "
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Clica no botão de limpar a pesquisa"
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector",
+            "descricao": "Clica para alterar o parametro de pesquisa"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option:has-text('Grupos Padrões')",
+            "descricao": "Escolhe o parametro de 'Grupos Padrões'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=2",
+            "descricao": "Clica no campo de escolher o resultado desejado (índice 2)"
+          },
+          {
+            "acao": "wait",
+            "tempo": 700
+          },
+          {
+            "acao": "fill",
+            "seletor": "input.ant-select-selection-search-input >> nth=2",
+            "valor": "Servidor",
+            "descricao": "Digita a opção 'Servidor' do dropdown"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='Servidor']",
+            "descricao": "Clica na opção Servidor"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "16_pesquisa_grupos_padroes",
+            "descricao": "Screenshot da pesquisa"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Clica no botão de limpar"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Novo tipo de conta')",
+            "descricao": "Clica no botão de criar um novo tipo de conta"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "17_tela_criacao",
+            "descricao": "Screenshot da tela de criação do tipo de conta"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder^='Crie um nome']",
+            "valor": "Teste Automatizado",
+            "descricao": "Preenche com o nome do novo tipo de conta"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=0",
+            "descricao": "Clica no dropdown de escolher a origem"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='Externo']",
+            "descricao": "Clica na opção Externo"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=1",
+            "descricao": "Clica no dropdown de escolher a personalidade"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='Pessoa física']",
+            "descricao": "Clica na opção 'Pessoa física' "
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=2",
+            "descricao": "Clica no dropdown 'Grupo(s) Externo(s)'"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='Cidadão']",
+            "descricao": "Clica na opção Cidadão"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "fill",
+            "seletor": "textarea[name='description']",
+            "valor": "Teste Automatizado",
+            "descricao": "Preenche o campo de descrição"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Adicionar perfil')",
+            "descricao": "Clica em adicionar um perfil de usuario ao tipo de conta"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=4",
+            "descricao": "Clica no dropdown de perfis de usuarios"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='Administrador']",
+            "descricao": "Clica na opção 'Administrador' "
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-modal-body button:has-text('ADICIONAR PERFIL')",
+            "descricao": "Adiciona o perfil 'Administrador' ao tipo de conta"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "screenshot",
+            "nome": "18_form_criacao_complet",
+            "descricao": "Screenshot com todas as informações necessárias para criação"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Salvar')",
+            "descricao": "Salva as informções do novo tipo de conta"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350
+          },
+          {
+            "acao": "screenshot",
+            "nome": "19_criacao_sucess",
+            "descricao": "Screenshot do tipo de conta criado"
+          },
+          {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/account-types",
+            "descricao": "Retorna para a página de consulta de Tipos de conta"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "Teste Automatizado",
+            "descricao": "Pesquisa pelo Tipo de Conta criado"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350
+          },
+          {
+            "acao": "screenshot",
+            "nome": "20_page_consulta",
+            "descricao": "Screenshot da tela de consulta com o tipo de conta criado retornado"
+          },
+          {
+            "acao": "click",
+            "seletor": "button.button-actions",
+            "descricao": "Abre o menu de ações"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350
+          },
+          {
+            "acao": "click",
+            "seletor": "text=Excluir",
+            "descricao": "Clica na ação de excluir"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-modal-body button:has-text('EXCLUIR')",
+            "descricao": "Confirma a exclusão do tipo de conta"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350
+          },
+          {
+            "acao": "screenshot",
+            "nome": "21_delet_complet",
+            "descricao": "Tipo de conta excluido"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Clica no botão de limpar a pesquisa"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500
+          }
+    ]
+}

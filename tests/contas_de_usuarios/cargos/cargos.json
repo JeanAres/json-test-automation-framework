@@ -1,0 +1,709 @@
+{
+    "nome": "Teste Completo - Login + Testar todas as funcionabilidades na sub-categoria 'Cargos'",
+    "descricao": "Faz login automaticamente e depois testa todos os funcionamentos dísponiveis na sub-categoria 'Cargos'",
+    "configuracoes":{
+        "timeout":20000,
+        "slow_motion":1000,
+        "largura":1366,
+        "altura":768,
+        "idioma":"pt-BR"
+    },
+    "passos": [
+        {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/",
+            "descricao": "Acessar eProd"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500,
+            "descricao": "Aguardar página de login carregar"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "01_tela_login",
+            "descricao": "Screenshot da tela de login"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='userName']",
+            "valor": "{{ADMIN_USER}}",
+            "descricao": "Preencher usuário"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='password']",
+            "valor": "{{ADMIN_PASS}}",
+            "descricao": "Preencher senha"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Entrar')",
+            "descricao": "Clicar em Entrar"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1400,
+            "descricao": "Aguardar login processar"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "02_apos_login",
+            "descricao": "Screenshot após login"
+        },
+        {
+            "acao": "click",
+            "seletor": "span:has-text('Contas de usuário')",
+            "descricao": "Abrir menu Contas de usuário"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1000,
+            "descricao": "Aguardar submenu abrir"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "03_menu_aberto",
+            "descricao": "Screenshot com menu aberto"
+          },
+          {
+            "acao": "click",
+            "seletor": "a[href='/positions']",
+            "descricao": "Clicar em 'Cargos' no submenu"
+          },
+          {
+            "acao": "wait",
+            "tempo": 750,
+            "descricao": "Aguarda o sistema carregar a página de Cargos"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "04_page_cargos",
+            "descricao": "Screenshot da página de Cargos aberta"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensASC;",
+            "variavel": "itens_asc",
+            "descricao": "Captura ASC inicial"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "05_order_asc",
+            "descricao": "Screenshot da coluna 'Nome' em ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo":350
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 1 - DESC"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "06_order_asc",
+            "descricao": "Screenshot da coluna 'Nome' em DESC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensDESC;",
+            "variavel": "itens_desc",
+            "descricao": "Captura DESC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 2 - Volta ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+            "variavel": "resultado_completo",
+            "descricao": "Valida se voltou para ASC inicial"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - TIPO DE CARGO ===",
+            "tipo": "separador"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Tipo de cargo')",
+            "descricao": "Clique inicial - Ordena em ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); window.itensASC;",
+            "variavel": "itens_asc",
+            "descricao": "Captura ASC inicial"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "07_order_asc_tipo_cargo",
+            "descricao": "Screenshot da coluna 'Tipo de cargo' em ASC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Tipo de cargo')",
+            "descricao": "Clique 1 - DESC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); window.itensDESC;",
+            "variavel": "itens_desc",
+            "descricao": "Captura DESC"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "08_order_desc_tipo_cargo",
+            "descricao": "Screenshot da coluna 'Tipo de cargo' em DESC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Tipo de cargo')",
+            "descricao": "Clique 2 - Volta ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+            "variavel": "resultado_completo",
+            "descricao": "Valida se voltou para ASC inicial"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - TIPO DE CARGO ===",
+            "tipo": "separador"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-selector >> nth=0",
+            "descricao": "Clicando no primeiro campo de pesquisa"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema carregar o dropdown"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='Tipo de cargo']",
+            "descricao": "Seleciona 'Tipo de cargo' no dropdown"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "09_tp_cargo_filtro",
+            "descricao": "Screenshot do filtro com o parametro de 'Tipo de Cargo'"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-selector >> nth=2",
+            "descricao": "Clicando no terceiro campo de pesquisa"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema carregar o dropdown"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='FUNÇÃO GRATIFICADA']",
+            "descricao": "Seleciona 'FUNÇÃO GRATIFICADA' no dropdown"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema aplicar o filtro"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "10_result_primeiro_filtro",
+            "descricao": "Screenshot do resultado da pesquisa utilizando o parametro de 'Tipo de cargo'"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Condição')",
+            "descricao": "Adiciona mais um parametro para o filtro"
+          },
+          {
+            "acao": "wait",
+            "tempo": 450,
+            "descricao": "Aguarda o sistema a exibir o segundo parametro"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "11_add_segundo_parametro",
+            "descricao": "Screenshot do segundo parametro sendo adicionado"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "II",
+            "descricao": "Preenche o campo do valor com um nome imcompleto pra ver se localiza"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "12_inserindo_valor",
+            "descricao": "Screenshot do valor 'Nome' inserido"
+          },
+          {
+            "acao": "wait",
+            "tempo": 400,
+            "descricao": "Aguarda o sistema carregar o botão de pesquisa"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Pesquisar')",
+            "descricao": "Clica no botão de pesquisa"
+          },
+          {
+            "acao": "wait",
+            "tempo": 400,
+            "descricao": "Aguarda o sistema carregar os resultados"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "13_resultado_completo",
+            "descricao": "Screenshot da pesquisa completa"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clica para ordenar a coluna 'Nome'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 450,
+            "descricao": "Aguarda o sistema a fazer a primeira ordenação"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "14_primeira_ordenacao",
+            "descricao": "Screenshot da coluna 'Nome' sendo ordenada pela primeira vez"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clica para ordenar a coluna 'Nome'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 450,
+            "descricao": "Aguarda o sistema a fazer a segunda ordenação"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "15_segunda_ordenacao",
+            "descricao": "Screenshot da coluna 'Nome' sendo ordenada pela segunda vez"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Salvar')",
+            "descricao": "Clica no botão de salvar o filtro"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda ser carregado o modal"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "16_modal_fav_filtro",
+            "descricao": "Screenshot do modal de favoritar filtro aberto"
+          },
+          {
+            "acao": "click",
+            "seletor": "input[placeholder*='Digite um nome']",
+            "descricao": "Clica no campo de colocar um nome para o filtro fav."
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder*='Digite um nome']",
+            "valor": "Teste automatizado",
+            "descricao": "Inseri o nome do filtro favoritado"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "17_nome_filtro_fav",
+            "descricao": "Screenshot do nome do filtro favoritada inserido"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-modal-body button:has-text('Salvar')",
+            "descricao": "Clica em salvar"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema favoritar o filtro"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "18_filtro_fav",
+            "descricao": "Screenshot do filtro favoritado"
+          },
+          {
+            "acao": "click",
+            "seletor": "#save-filter",
+            "descricao": "Clica no botão de editar o filtro favoritado"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sitema abrir o modal de edição"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "19_modal_edicao",
+            "descricao": "Screenshot do modal de edição aberto"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Excluir')",
+            "descricao": "Clica no botão de excluir o filtro"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema excluir o filtro favoritado"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "20_filtro_fav_excluido",
+            "descricao": "Screenshot do filtro favoritado sendo excluido"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Clica em limpar o filtro ainda ativo"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema a limpar os filtros"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has(img[alt='Próxima página'])",
+            "descricao": "Avança uma página"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema carregar a página"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "21_avanca_page2",
+            "descricao": "Screenshot da segunda página"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has(img[alt='Última página'])",
+            "descricao": "Clica para avançar para a ultima página"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema a carregar a ultima página"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "22_last_page",
+            "descricao": "Screenshot da ultima página"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has(img[alt='Ir para paginação incial'])",
+            "descricao": "Retorna para a primeira página"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema a carregar a primeira página"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "23_first_page",
+            "descricao": "Screenshot da primeira página"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Novo cargo')",
+            "descricao": "Clica no botão de criar um novo cargo"
+          },
+          {
+            "acao": "wait",
+            "tempo": 750,
+            "descricao": "Aguarda a página de criação carregar corretamente"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "24_tela_criacao",
+            "descricao": "Screenshot da tela de criação de um novo cargo"
+          },
+          {
+            "acao": "click",
+            "seletor": "input[placeholder='Crie um nome']",
+            "descricao": "Clica no campo de digitar o nome do cargo"
+          },
+          {
+            "acao":"fill",
+            "seletor": "input[placeholder='Crie um nome']",
+            "valor": "Cargo Automatizado",
+            "descricao": "Inseri o nome do novo cargo"
+          },
+          {
+            "acao": "wait",
+            "tempo": 450,
+            "descricao": "Aguarda o sistema"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "25_name_inserido",
+            "descricao": "Screenshot com o nome do cargo inserido"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-selection-search",
+            "descricao": "Abre o dropdown de tipos de cargo"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda dropdown abrir"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option[title='Contratado']",
+            "descricao": "Clica na opção 'Contratado'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 750,
+            "descricao": "Aguarda confirmação"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "26_select_type_cargo",
+            "descricao": "Screenshot com o tipo de cargo selecionado"
+          },
+          {
+            "acao": "click",
+            "seletor": "textarea[name='description']",
+            "descricao": "Clica no componente de inserir uma descrição"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema"
+          },
+          {
+            "acao": "fill",
+            "valor": "Teste automatizado de criação de um cargo",
+            "seletor": "textarea[name='description']",
+            "descricao": "Digita a descrição do novo cargo"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "27_description_inserida",
+            "descricao": "Screenshot do campo de descrição preenchido"
+          },
+          {
+            "acao": "click",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "descricao": "Clica no primeiro campo de data"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "valor": "20/01/2026",
+            "descricao": "Preenche a primeira data"
+          },
+          {
+            "acao": "press",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "tecla": "Enter",
+            "descricao": "Confirma a primeira data"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda processar"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "28_primeira_data",
+            "descricao": "Screenshot da primeira data inserida"
+          },
+          {
+            "acao": "click",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=1",
+            "descricao": "Clica no segundo campo de data"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=1",
+            "valor": "31/12/2026",
+            "descricao": "Preenche a segunda data"
+          },
+          {
+            "acao": "press",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=1",
+            "tecla": "Enter",
+            "descricao": "Confirma a segunda data"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda processar"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "29_segunda_data",
+            "descricao": "Screenshot da segunda data inserida"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Salvar')",
+            "descricao": "Clica no botão de salvar"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "30_create_cargo",
+            "descricao": "Screenshot do cargo criado"
+          },
+          {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/positions",
+            "descricao": "Retorna para a página de consultas de cargos"
+          },
+          {
+            "acao": "click",
+            "seletor": "input[placeholder='Valor']",
+            "descricao": "Clica para pesquisar cargos por palavra chave"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "carg",
+            "descricao": "Preenche com a palavra chave pra buscar o cargo"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema a carregar os resultados"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "31_busca_nome",
+            "descricao": "Screenshot da busca de cargo por nome"
+          },
+          {
+            "acao": "click",
+            "seletor": "button.button-actions",
+            "descricao": "Clica nas ações do resultado encontrado"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema a carregar o menu de ações"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "32_menu_acoes",
+            "descricao": "Screenshot do menu de ações aberto"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has-text('Excluir')",
+            "descricao": "Clica na ação de excluir"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema a carregar o modal de confirmação"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "33_modal_confirmacao",
+            "descricao": "Screenshot do modal de confirmação de exclusão"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('EXCLUIR')",
+            "descricao": "Clica para excluir o cargo criado"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema a excluir o cargo"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "34_cargo_excluido",
+            "descricao": "Screenshot do cargo sendo excluido"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Clica para limpar o filtro"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema limpar o filtro"
+          },
+          {
+            "acao": "screenshot",
+            "nome": "35_clear_filtro",
+            "descricao": "Screenshot do filtro sem nenhum parametro"
+          }
+    ]
+}
