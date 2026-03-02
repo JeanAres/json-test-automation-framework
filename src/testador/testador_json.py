@@ -25,7 +25,7 @@ Dependências:
     python -m playwright install chromium
 
 Autor: Jean Soares
-Data: Fevereiro 2026
+Data: Março 2026
 Versão: 1.8.0 (com suporte a ambientes)
 """
 
@@ -33,6 +33,7 @@ import json
 import os
 import re
 import copy
+import sys
 from datetime import datetime
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeout
 from dotenv import load_dotenv
@@ -681,7 +682,61 @@ class TestadorJSON:
             
             elif acao == 'goto':
                 page.goto(passo['url'])
+
+            elif acao == 'validar_indexacao_api':
+                seletor_input = passo['seletor']
+                ano_pesquisa = str(passo['ano'])
+                url_parcial = passo['url_api_contem']
+                chave_total = passo['chave_json_total']
+
+                ambiente = "dev"
+                for arg in sys.argv:
+                    if arg.startswith("--env="):
+                        ambiente = arg.split("=")[1]
+                        
+                arquivo_historico = f"evidence/logs/{ambiente}/quant_prop_ano.json"
             
+                # 1. Escuta a rede AGUARDANDO a requisição disparar, e ENTÃO preenche o campo
+                with page.expect_response(lambda response: url_parcial in response.url) as response_info:
+                    page.fill(seletor_input, ano_pesquisa)
+            
+                # 2. Pega o objeto da resposta e já converte o corpo direto para um dicionário Python
+                corpo_json = response_info.value.json()
+            
+                # 3. Extrai o número total de dentro do JSON
+                total_atual = int(corpo_json[chave_total])
+                
+                # 4. Lógica de comparação com execuções anteriores
+                historico = {}
+                if os.path.exists(arquivo_historico):
+                    with open(arquivo_historico, 'r', encoding='utf-8') as f:
+                        historico = json.load(f)
+                
+                if ano_pesquisa in historico and len(historico[ano_pesquisa]) > 0:
+                    ultima_execucao = historico[ano_pesquisa][-1]
+                    total_anterior = ultima_execucao['total']
+                    
+                    if total_atual < total_anterior:
+                        raise AssertionError(
+                            f"Falha na indexação! O ano {ano_pesquisa} tinha {total_anterior} proposições, "
+                            f"mas a API retornou apenas {total_atual}."
+                        )
+                    
+                # 5. Salva o novo registro
+                novo_registro = {
+                    "data_execucao": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "total": total_atual
+                }
+                
+                if ano_pesquisa not in historico:
+                    historico[ano_pesquisa] = []
+
+                historico[ano_pesquisa].append(novo_registro)
+                    
+                os.makedirs(os.path.dirname(arquivo_historico), exist_ok=True)
+                with open(arquivo_historico, 'w', encoding='utf-8') as f:
+                    json.dump(historico, f, indent=4)
+
             elif acao == 'fill':
                 valor = passo['valor']
                 
