@@ -14,3 +14,6 @@ venv/
 
 # Pasta com arquivos em desenvolvimento
 em_desenvolvimento/
+
+# Anotações de regras para o uso do Git
+regrasGit.txt
