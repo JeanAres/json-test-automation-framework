@@ -1,0 +1,127 @@
+{
+    "nome": "Consulta de proposições por ano",
+    "descricao": "Faz login automaticamente e depois consulta proposições por ano para validar a indexação",
+    "configuracoes":{
+        "timeout":20000,
+        "slow_motion":1000,
+        "largura":1366,
+        "altura":768,
+        "idioma":"pt-BR"
+    },
+    "passos": [
+        {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/",
+            "descricao": "Acessar eProd"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500,
+            "descricao": "Aguardar página de login carregar"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='userName']",
+            "valor": "{{ADMIN_USER}}",
+            "descricao": "Preencher usuário"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='password']",
+            "valor": "{{ADMIN_PASS}}",
+            "descricao": "Preencher senha"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Entrar')",
+            "descricao": "Clicar em Entrar"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1400,
+            "descricao": "Aguardar login processar"
+        },
+        {
+            "acao": "click",
+            "seletor": "span:has-text('Proposições')",
+            "descricao": "Abre a página de consulta de proposições"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1000,
+            "descricao": "Aguarda a página de consulta de proposições carregar"
+        },
+        {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=0",
+            "descricao": "Clica no primeiro campo da pesquisa"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar o dropdown"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item-option-content:has-text('ano')",
+            "descricao": "Altera a consulta de 'Identificador' para 'Ano'"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar o dropdown"
+        },
+        {
+            "acao": "validar_indexacao_api",
+            "seletor": "input[placeholder='Valor']",
+            "ano": "2026",
+            "url_api_contem": "/propositions/elastic-query",
+            "chave_json_total": "totalItems",
+            "descricao": "Preenche o ano de 2026, intercepta a pesquisa automática e valida a indexação"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda a tela processar antes da próxima pesquisa"
+        },
+        {
+            "acao": "validar_indexacao_api",
+            "seletor": "input[placeholder='Valor']",
+            "ano": "2025",
+            "url_api_contem": "/propositions/elastic-query",
+            "chave_json_total": "totalItems",
+            "descricao": "Preenche o ano de 2025 e valida a indexação"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda a tela processar antes da próxima pesquisa"
+        },
+        {
+            "acao": "validar_indexacao_api",
+            "seletor": "input[placeholder='Valor']",
+            "ano": "2024",
+            "url_api_contem": "/propositions/elastic-query",
+            "chave_json_total": "totalItems",
+            "descricao": "Preenche o ano de 2024 e valida a indexação"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda a tela processar antes da próxima pesquisa"
+        },
+        {
+            "acao": "validar_indexacao_api",
+            "seletor": "input[placeholder='Valor']",
+            "ano": "2023",
+            "url_api_contem": "/propositions/elastic-query",
+            "chave_json_total": "totalItems",
+            "descricao": "Preenche o ano de 2024 e valida a indexação"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda a tela processar antes da próxima pesquisa"
+        }
+    ]
+}
