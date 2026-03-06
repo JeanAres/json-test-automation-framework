@@ -1,8 +1,10 @@
 # Arquivos de ambiente com credenciais
 .env
 
-# Evidências de teste (screenshots, vídeos, logs)
-evidence/
+# Evidencias de teste (apenas as pastas geradas automaticamente)
+evidence/screenshots/
+evidence/videos/
+evidence/logs/
 
 # Arquivos compilados do Python
 __pycache__/
@@ -15,5 +17,5 @@ venv/
 # Pasta com arquivos em desenvolvimento
 em_desenvolvimento/
 
-# Anotações de regras para o uso do Git
+# Anotacoes de regras para o uso do Git
 regrasGit.txt
