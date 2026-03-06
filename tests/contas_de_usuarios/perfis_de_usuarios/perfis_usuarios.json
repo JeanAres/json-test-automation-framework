@@ -80,6 +80,627 @@
             "acao": "screenshot",
             "nome": "03_page_search",
             "descricao": "Screenshot da página de consulta de Perfis aberta"
-        }
+        },
+        {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": ", trami",
+            "descricao": "Realiza pesquisa por um perfil já existente"
+        },
+        {
+            "acao": "wait",
+            "tempo": 650,
+            "descricao": "Aguarda o sistema retornar os registros"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Limpa a pesquisa realizada"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema limpar a pesquisa"
+        },
+        {
+            "acao": "comentario",
+            "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "executar_script",
+            "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensASC;",
+            "variavel": "itens_asc",
+            "descricao": "Captura ASC inicial"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "03_order_asc",
+            "descricao": "Screenshot da coluna 'Nome' em ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo":350
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 1 - DESC"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "04_order_asc",
+            "descricao": "Screenshot da coluna 'Nome' em DESC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500
+        },
+        {
+            "acao": "executar_script",
+            "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensDESC;",
+            "variavel": "itens_desc",
+            "descricao": "Captura DESC"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 2 - Volta ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500
+        },
+        {
+            "acao": "executar_script",
+            "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+            "variavel": "resultado_completo",
+            "descricao": "Valida se voltou para ASC inicial"
+        },
+        {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "comentario",
+            "mensagem": "=== CRIAÇÃO DO PERFIL ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/roles/create",
+            "descricao": "Vai direto para página de criação de perfis"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda a página de criação carregar"
+        },
+        {
+            "acao": "fill",
+            "seletor": "input[placeholder='Crie um nome']",
+            "valor": "Teste Automatizado 1",
+            "descricao": "Inserindo o nome do perfil "
+        },
+        {
+            "acao": "click",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "descricao": "Clica no primeiro campo de data"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "valor": "20/01/2026",
+            "descricao": "Preenche a primeira data"
+          },
+          {
+            "acao": "press",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "tecla": "Enter",
+            "descricao": "Confirma a primeira data"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=1",
+            "descricao": "Clica no segundo campo de data"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=1",
+            "valor": "18/08/2026",
+            "descricao": "Preenche a segunda data"
+          },
+          {
+            "acao": "press",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=1",
+            "tecla": "Enter",
+            "descricao": "Confirma a segunda data"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "fill",
+            "seletor": "textarea[name='description']",
+            "valor": "Teste Automatizado",
+            "descricao": "Preenche o campo de descrição do perfil"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has(div[title='Contas do usuário']) > input[type='checkbox']",
+            "descricao": "Marca o checkbox de Contas do usuário"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "span.default-text:has-text('Contas do usuário')",
+            "descricao": "Clica para minimizar a pasta de 'Contas de usuário'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema minimizar a pasta"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has(div[title='Fluxos de trabalho']) > input[type='checkbox']",
+            "descricao": "Marca o checkbox de Fluxos de trabalho"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "span.default-text:has-text('Fluxos de trabalho')",
+            "descricao": "Clica para minimizar a pasta de 'Fluxos de trabalho'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema minimizar a pasta"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has(div[title='Gestão documental']) > input[type='checkbox']",
+            "descricao": "Marca o checkbox de Gestão documental"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "span.default-text:has-text('Gestão documental')",
+            "descricao": "Clica para minimizar a pasta de 'Gestão documental'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema minimizar a pasta"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has(div[title='Processos']) input[type='checkbox']",
+            "descricao": "Marca o checkbox de Processos"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "div[title='Processos'] span.default-text",
+            "descricao": "Clica no icone para minimizar a pasta de Processos"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema minimizar a pasta"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has(div[title='Lista de tarefas']) > input[type='checkbox']",
+            "descricao": "Marca o checkbox de Lista de tarefas"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "span.default-text:has-text('Lista de tarefas')",
+            "descricao": "Clica para minimizar a pasta de 'Lista de tarefas'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema minimizar a pasta"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has(div[title='Kit Administrativo']) > input[type='checkbox']",
+            "descricao": "Marca o checkbox de Kit Administrativo"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "span.default-text:has-text('Kit Administrativo')",
+            "descricao": "Clica para minimizar a pasta de 'Kit Administrativo'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema minimizar a pasta"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has(div[title='Assinaturas']) > input[type='checkbox']",
+            "descricao": "Marca o checkbox de Assinaturas"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "span.default-text:has-text('Assinaturas')",
+            "descricao": "Clica para minimizar a pasta de 'Assinaturas'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema minimizar a pasta"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has(div[title='Configurações']) > input[type='checkbox']",
+            "descricao": "Marca o checkbox de Configurações"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "span.default-text:has-text('Configurações')",
+            "descricao": "Clica para minimizar a pasta de 'Configurações'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema minimizar a pasta"
+          },
+          {
+            "acao": "click",
+            "seletor": "li:has(div[title='Módulo Legislativo']) > input[type='checkbox']",
+            "descricao": "Marca o checkbox de Módulo Legislativo"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema processar"
+          },
+          {
+            "acao": "click",
+            "seletor": "span.default-text:has-text('Módulo Legislativo')",
+            "descricao": "Clica para minimizar a pasta de 'Módulo Legislativo'"
+          },
+          {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema minimizar a pasta"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Salvar')",
+            "descricao": "Clica para salvar o primeiro perfil criado"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema processar a criação do perfil"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA CRIAÇÃO DO PERFIL ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/roles",
+            "descricao": "Retornar para a página de consulta"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda a página carregar"
+        },
+        {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=0",
+            "descricao": "Clica no primeiro campo de pesquisa"
+        },
+        {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema carregar o dropdown"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item-option-content:has-text('Vigência inicial')",
+            "descricao": "Altera a consulta de 'Nome' para 'Vigência inicial'"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema confirmar o primeiro parametro de pesquisa"
+        },
+        {
+            "acao": "click",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "descricao": "Clica no campo de data"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "valor": "25/12/2025",
+            "descricao": "Preenche o campo da data"
+          },
+          {
+            "acao": "press",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "tecla": "Enter",
+            "descricao": "Confirma a data"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema exibir o registro"
+          },
+          {
+            "acao": "click",
+            "seletor": "div.ant-select-selector >> nth=1",
+            "descricao": "Clica no campo de condição da pesquisa"
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-select-item-option-content:has-text('Maior que')",
+            "descricao": "Altera a condição da pesquisa de 'Igual' para 'Maior que' "
+          },
+          {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar a nova condição"
+          },
+          {
+            "acao": "click",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "descricao": "Clica no campo de data"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "valor": "24/12/2025",
+            "descricao": "Preenche o campo da data"
+          },
+          {
+            "acao": "press",
+            "seletor": "input[placeholder='dd/mm/aaaa'] >> nth=0",
+            "tecla": "Enter",
+            "descricao": "Confirma a data"
+          },
+          {
+            "acao": "wait",
+            "tempo": 650,
+            "descricao": "Aguarda o sistema exibir o registro"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Limpa a pesquisa realizada"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "Teste",
+            "descricao": "Pesquisa registros que contenham a palavra teste no nome"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema retornar os registros"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - VIGÊNCIA INICIAL ===",
+            "tipo": "separador"
+          },	
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Vigência inicial')",
+            "descricao": "Clique inicial - Ordena em ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); window.itensASC;",
+            "variavel": "itens_asc",
+            "descricao": "Captura ASC inicial"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Vigência inicial')",
+            "descricao": "Clique 1 - DESC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); window.itensDESC;",
+            "variavel": "itens_desc",
+            "descricao": "Captura DESC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Vigência inicial')",
+            "descricao": "Clique 2 - Volta ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[1]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+            "variavel": "resultado_completo",
+            "descricao": "Valida se voltou para ASC inicial"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - VIGÊNCIA INICIAL ===",
+            "tipo": "separador"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - VIGÊNCIA FINAL ===",
+            "tipo": "separador"
+          },	
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Vigência final')",
+            "descricao": "Clique inicial - Ordena em ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[2]?.textContent.trim()).filter(t => t); window.itensASC;",
+            "variavel": "itens_asc",
+            "descricao": "Captura ASC inicial"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Vigência final')",
+            "descricao": "Clique 1 - DESC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[2]?.textContent.trim()).filter(t => t); window.itensDESC;",
+            "variavel": "itens_desc",
+            "descricao": "Captura DESC"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Vigência final')",
+            "descricao": "Clique 2 - Volta ASC"
+          },
+          {
+            "acao": "wait",
+            "tempo": 1500
+          },
+          {
+            "acao": "executar_script",
+            "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[2]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+            "variavel": "resultado_completo",
+            "descricao": "Valida se voltou para ASC inicial"
+          },
+          {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - VIGÊNCIA FINAL ===",
+            "tipo": "separador"
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Limpa a pesquisa realizada"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema limpar a pesquisa"
+          },
+          {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "Teste Automatizado 1",
+            "descricao": "Realiza pesquisa pelo perfil criado"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema retornar o registro"
+          },
+          {
+            "acao": "click",
+            "seletor": "button.button-actions",
+            "descricao": "Abre o menu de ações"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350
+          },
+          {
+            "acao": "click",
+            "seletor": "text=Excluir",
+            "descricao": "Clica na ação de excluir"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350
+          },
+          {
+            "acao": "click",
+            "seletor": ".ant-modal-body button:has-text('EXCLUIR')",
+            "descricao": "Confirma a exclusão do tipo de conta"
+          },
+          {
+            "acao": "wait",
+            "tempo": 350
+          },
+          {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Limpa a pesquisa realizada"
+          },
+          {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema limpar a pesquisa"
+          }
+
     ]
 }
