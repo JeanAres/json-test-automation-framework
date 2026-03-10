@@ -31,6 +31,9 @@ Versão: 1.8.0 (com suporte a ambientes)
 
 import json
 import os
+import random
+import time
+import psycopg2
 import re
 import copy
 import sys
