@@ -21,12 +21,12 @@ Características:
 - Suporte a múltiplos ambientes (dev, homolog, stage)
 
 Dependências:
-    pip install playwright python-dotenv
+    pip install playwright python-dotenv google-generativeai requests
     python -m playwright install chromium
 
 Autor: Jean Soares
 Data: Março 2026
-Versão: 1.8.0 (com suporte a ambientes)
+Versão: 1.8.0 (com suporte a ambientes e IA)
 """
 
 import json
@@ -34,6 +34,8 @@ import os
 import random
 import time
 import psycopg2
+import requests
+from google import genai
 import re
 import copy
 import sys
@@ -41,18 +43,13 @@ from datetime import datetime
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeout
 from dotenv import load_dotenv
 
-
 load_dotenv()
-
 
 class TestadorJSON:
     """
     Classe responsável por executar testes automatizados de interface web
-    baseados em configurações JSON.
-    
-    A classe gerencia a execução de testes, captura de screenshots, gravação
+    baseados em configurações JSON. A classe gerencia a execução de testes, captura de screenshots, gravação
     de vídeos e geração de relatórios.
-    
     Attributes:
         screenshots_dir (str): Diretório para armazenar screenshots
         videos_dir (str): Diretório para armazenar vídeos
@@ -66,10 +63,8 @@ class TestadorJSON:
         Inicializa o testador com diretórios para screenshots e vídeos.
         
         Args:
-            pasta_screenshots (str): Nome do diretório para screenshots.
-                                    Padrão: "test_screenshots"
-            pasta_videos (str): Nome do diretório para vídeos.
-                               Padrão: "videos"
+            pasta_screenshots (str): Nome do diretório para screenshots. Padrão: "test_screenshots"
+            pasta_videos (str): Nome do diretório para vídeos. Padrão: "videos"
         
         Nota:
             Os diretórios são criados automaticamente se não existirem.
@@ -87,29 +82,108 @@ class TestadorJSON:
         os.makedirs(self.screenshots_dir, exist_ok=True)
         os.makedirs(self.videos_dir, exist_ok=True)
 
+    def analisar_erro_com_ia(self, passo_descricao, erro_tela):
+        print("[IA] Analisando o erro capturado na tela com a API...")
+        try:
+            chave_api = os.getenv("GEMINI_API_KEY")
+            if not chave_api:
+                return f"Falha ao acionar a IA: Chave GEMINI_API_KEY nao encontrada no .env <br><br> Erro original: {erro_tela}"
+                    
+            client = genai.Client(api_key=chave_api)
+
+            prompt = f"""
+            Voce e um Analista de Qa Senior. Um teste automatizado falhou.
+            - Passo que estava sendo executado: {passo_descricao}
+            - Erro interno exibido em tela pelo sistema ou log: {erro_tela}
+
+            Escreva a descricao de um card de bug detalhado, tentando deduzir a causa tecnica raiz com base no erro de tela. Formate em HTML basico (usando <b>, <br>, <ul>, <li>) para ficar bem formatado no Azure DevOps. Seja direto e profissional.
+
+            REGRAS OBRIGATORIAS:
+            1. Formate TUDO em HTML basico (<b>, <br>, <ul>, <li>).
+            2. NAO inclua NENHUM cumprimento, introducao ou conclusao (ex: "Aqui esta o card...", "Como analista...").
+            3. NAO use blocos de markdown (como ```html ou ```). Retorne APENAS o texto HTML puro e direto.
+            """
+                
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+            )
+
+            texto_limpo = response.text.replace("```html", "").replace("```", "").strip()
+
+            return texto_limpo             
+            
+        except Exception as e:
+            return f"Falha ao acionar a IA: {str(e)} <br><br> Erro original da tela: {erro_tela}"
+
+    def abrir_card_azure(self, titulo, descricao_html):
+        print("[Azure] Criando card de bug silenciosamente...")
+        try:
+            organizacao = os.getenv("AZURE_ORGANIZATION")
+            projeto = os.getenv("AZURE_PROJECT")
+            token = os.getenv("AZURE_TOKEN")
+            area_path = os.getenv("AZURE_AREA_PATH")
+
+            url = f"https://dev.azure.com/{organizacao}/{projeto}/_apis/wit/workitems/$Bug?api-version=7.1"
+
+            payload = [
+                {
+                    "op": "add",
+                    "path": "/fields/System.Title",
+                    "value": titulo
+                },
+                {
+                    "op": "add",
+                    "path": "/fields/Microsoft.VSTS.TCM.ReproSteps",
+                    "value": descricao_html
+                }
+            ]
+
+            if area_path:
+                payload.append({
+                    "op": "add",
+                    "path": "/fields/System.AreaPath",
+                    "value": area_path
+                })
+
+            headers = {
+                'Content-Type': 'application/json-patch+json'
+            }
+
+            response = requests.post(url, json=payload, headers=headers, auth=('', token))
+
+            if response.status_code in (200,201):
+                dados_retorno = response.json()
+                id_bug = dados_retorno.get('id')
+                link_bug = dados_retorno['_links']['html']['href']
+                print(f"Sucesso absoluto! Bug #{id_bug} criado no Azure: {link_bug}")
+            else:
+                print(f"Erro ao criar bug no Azure. Status: {response.status_code} - {response.text}")
+
+        except Exception as e:
+            print(f"Erro na integracao com o Azure: {str(e)}")
+
     def validar_ordenacao_coluna(self, page, seletor_coluna, seletor_itens, parametro_url="name", modo_debug=False):
         """
         Clica em uma coluna para ordenar, valida a URL e se a ordem dos itens foi invertida.
-
         Args:
             page: Objeto page do Playwright.
             seletor_coluna: Seletor CSS do botão/cabeçalho da coluna para clicar
             seletor_itens: Seletor CSS para capturar a lista de itens na coluna.
             parametro_url: O valor da parametro 'orderProperty' esperando na URL 
             modo_debug: Se True, imprime detalhes da validação.
-
         Returns:
             bool: Retorna True se a ordenação (URL e dados) funcionou corretamente.
         """
         if modo_debug:
-            print(f"[Ordenação] Primeiro clique em: {seletor_coluna}")
+            print(f"[Ordenacao] Primeiro clique em: {seletor_coluna}")
         
         page.click(seletor_coluna)
         page.wait_for_timeout(500)
 
         url_atual = page.url
         if f"orderDir=desc" not in url_atual and f"orderDir=asc" not in url_atual:
-            print("[Ordenação] URL não reflete a ordenação após o primeiro clique.")
+            print("[Ordenacao] URL nao reflete a ordenacao apos o primeiro clique.")
             if modo_debug: 
                 print(f"URL atual: {url_atual}")
 
@@ -121,21 +195,21 @@ class TestadorJSON:
         """)
         
         if modo_debug:
-            print(f"[Ordenação] Primeira lista capturada ({len(primeira_lista)} itens): {primeira_lista[:5]}...")
+            print(f"[Ordenacao] Primeira lista capturada ({len(primeira_lista)} itens): {primeira_lista[:5]}...")
 
         if len(primeira_lista) == 0:
-            print("[Ordenação] Nenhum item encontrado na primeira captura.")
+            print("[Ordenacao] Nenhum item encontrado na primeira captura.")
             return False
 
         if modo_debug:
-            print(f"[Ordenação] Segundo clique em: {seletor_coluna}")
+            print(f"[Ordenacao] Segundo clique em: {seletor_coluna}")
 
         page.click(seletor_coluna)
         page.wait_for_timeout(500)
 
         url_atual = page.url
         if f"orderDir=desc" not in url_atual and f"orderDir=asc" not in url_atual:
-            print("[Ordenação] URL não reflete a ordenação após o segundo clique.")
+            print("[Ordenacao] URL nao reflete a ordenacao apos o segundo clique.")
             if modo_debug: 
                 print(f"URL atual: {url_atual}")
             return False
@@ -148,18 +222,18 @@ class TestadorJSON:
         """)
         
         if modo_debug:
-            print(f"[Ordenação] Segunda lista capturada ({len(segunda_lista)} itens): {segunda_lista[:5]}...")
+            print(f"[Ordenacao] Segunda lista capturada ({len(segunda_lista)} itens): {segunda_lista[:5]}...")
 
         if len(segunda_lista) == 0:
-            print("[Ordenação] Nenhum item encontrado na segunda captura.")
+            print("[Ordenacao] Nenhum item encontrado na segunda captura.")
             return False
         
         lista_invertida_esperada = list(reversed(primeira_lista))
         if segunda_lista == lista_invertida_esperada:
-            print("[Ordenação] Ordenação validada com sucesso (dados invertidos).")
+            print("[Ordenacao] Ordenacao validada com sucesso (dados invertidos).")
             return True
         else:
-            print("[Ordenação] Falha na validação dos dados. A ordem dos itens não foi invertida.")
+            print("[Ordenacao] Falha na validacao dos dados. A ordem dos itens nao foi invertida.")
             if modo_debug:
                 print(f" Primeira lista: {primeira_lista[:5]}...")
                 print(f" Segunda lista: {segunda_lista[:5]}...")
@@ -168,9 +242,7 @@ class TestadorJSON:
 
     def carregar_ambiente(self, ambiente=None):
         """
-        Carrega configurações do ambiente especificado.
-        Ambientes disponíveis: dev, homolog, stage
-    
+        Carrega configurações do ambiente especificado. Ambientes disponíveis: dev, homolog, stage
         A URL vem do arquivo JSON em config/environments/
         As credenciais vêm do .env
         """
@@ -191,7 +263,7 @@ class TestadorJSON:
                 self.variaveis['URL_BASE'] = config['url_base'].rstrip('/')
                 self.variaveis['NOME_AMBIENTE'] = config['nome']
         else:
-            print(f"ERRO: Arquivo de ambiente não encontrado: {caminho_url}")
+            print(f"ERRO: Arquivo de ambiente nao encontrado: {caminho_url}")
             self.variaveis['URL_BASE'] = 'https://homologacao.al.rs.gov.br'
     
         # ===== 2. CARREGA CREDENCIAIS DO .env =====
@@ -219,13 +291,11 @@ class TestadorJSON:
                       modo_debug=False, ambiente=None):
         """
         Executa um teste automatizado baseado em configuração JSON.
-        
         Args:
             arquivo_json (str, optional): Caminho para arquivo JSON de configuração
             config_json (dict, optional): Dicionário com configuração do teste
             headless (bool): Se True, executa navegador em modo headless (sem interface)
-            navegador (str): Navegador a ser usado. Opções: "chromium", "firefox", 
-                           "webkit", "brave". Padrão: "chromium"
+            navegador (str): Navegador a ser usado. Opções: "chromium", "firefox", "webkit", "brave". Padrão: "chromium"
             caminho_navegador (str, optional): Caminho completo para executável do navegador
             gravar_video (bool): Se True, grava vídeo da execução. Padrão: True
             modo_debug (bool): Se True, exibe mais informações de debug. Padrão: False
@@ -248,7 +318,7 @@ class TestadorJSON:
         elif config_json:
             config = config_json
         else:
-            raise ValueError("Forneça arquivo_json ou config_json")
+            raise ValueError("Forneca arquivo_json ou config_json")
         
         # Substitui variáveis de ambiente nos passos
         config = self._substituir_variaveis_ambiente(config)
@@ -267,26 +337,20 @@ class TestadorJSON:
                 print(f"Gravando video em: {self.videos_dir}/")
         
         # ===== Suporte a estrutura com cenários =====
-        # Prepara lista de passos baseado na estrutura do JSON
         if "cenarios" in config:
-            # Nova estrutura com cenários
             todos_passos = []
             total_passos = 0
             cenario_ativo_encontrado = False
             
             for cenario in config["cenarios"]:
-                # Verifica se o cenário está ativo
                 if not cenario.get("ativa", True):
                     if modo_debug:
                         print(f"Cenario '{cenario['nome']}' desativado - Pulando")
                     continue
                 
-                # Verifica pré-condições
                 pre_condicao = cenario.get('pre_condicao')
                 if pre_condicao:
-                    # Substitui variáveis na pré-condição
                     pre_condicao_avaliada = self._substituir_texto(pre_condicao)
-                    # Avalia pré-condição simples
                     if not self._avaliar_pre_condicao(pre_condicao_avaliada):
                         if modo_debug:
                             print(f"Pre-condicao nao atendida para '{cenario['nome']}': {pre_condicao}")
@@ -297,7 +361,6 @@ class TestadorJSON:
                 print(f"Papel: {cenario.get('papel', 'Nao especificado')}")
                 print("-" * 50)
                 
-                # Adiciona passo de comentário para marcar início do cenário
                 todos_passos.append({
                     "acao": "comentario",
                     "mensagem": f"========== CENARIO: {cenario['nome']} ==========",
@@ -305,7 +368,6 @@ class TestadorJSON:
                     "descricao": f"Inicio do cenario: {cenario['nome']}"
                 })
                 
-                # Adiciona passo de papel
                 if 'papel' in cenario:
                     todos_passos.append({
                         "acao": "comentario",
@@ -314,15 +376,12 @@ class TestadorJSON:
                         "descricao": f"Definir papel: {cenario['papel']}"
                     })
                 
-                # Adiciona passos do cenário à lista geral
                 if 'passos' in cenario:
                     for passo in cenario['passos']:
-                        # Marca o passo com o cenário de origem para logs
                         passo['_cenario'] = cenario['nome']
                         todos_passos.append(passo)
                         total_passos += 1
                 
-                # Adiciona passo de fim de cenário
                 todos_passos.append({
                     "acao": "comentario",
                     "mensagem": f"FIM DO CENARIO: {cenario['nome']}",
@@ -335,11 +394,9 @@ class TestadorJSON:
                 todos_passos = []
                 total_passos = 0
         else:
-            # Estrutura antiga (backward compatibility)
             todos_passos = config.get('passos', [])
             total_passos = len(todos_passos)
         
-        # Inicializa estrutura de resultados
         resultado = {
             "nome": config.get('nome', 'Teste'),
             "sucesso": False,
@@ -359,32 +416,18 @@ class TestadorJSON:
         
         try:
             with sync_playwright() as p:
-                # Obtém configurações do navegador do JSON
                 browser_config = config.get('configuracoes', {})
-                
-                # Seleciona e inicializa o navegador
-                browser = self._inicializar_navegador(
-                    p, navegador, caminho_navegador, 
-                    headless, browser_config
-                )
-                
-                # Configura contexto do navegador com suporte a PDFs
-                context_options = self._configurar_contexto(
-                    browser_config, gravar_video
-                )
-                
+                browser = self._inicializar_navegador(p, navegador, caminho_navegador, headless, browser_config)
+                context_options = self._configurar_contexto(browser_config, gravar_video)
                 context = browser.new_context(**context_options)
                 page = context.new_page()
                 page.set_default_timeout(browser_config.get('timeout', 60000))
                 
-                # Executa cada passo do teste
                 for i, passo in enumerate(todos_passos, 1):
-                    # Atualiza cenário atual se necessário
                     if '_cenario' in passo and passo['_cenario'] != self.cenario_atual:
                         self.cenario_atual = passo['_cenario']
                         resultado["cenario_atual"] = self.cenario_atual
                     
-                    # Captura o retorno para suportar troca de abas
                     page_retornada = self._executar_passo(page, passo, i, resultado, modo_debug)
                     if page_retornada is not None:
                         page = page_retornada
@@ -393,8 +436,7 @@ class TestadorJSON:
                 resultado["sucesso"] = True
                 resultado["variaveis"] = self.variaveis.copy()
                 resultado["pdf_viewers"] = self.pdf_viewers_detected.copy()
-                
-                # Finaliza gravação de vídeo
+
                 if gravar_video:
                     video_path = page.video.path()
                     resultado["video"] = video_path
@@ -402,11 +444,8 @@ class TestadorJSON:
                 context.close()
                 browser.close()
                 
-                # Renomeia vídeo com timestamp e nome do teste
                 if gravar_video and resultado["video"]:
-                    resultado["video"] = self._renomear_video(
-                        resultado["video"], config.get('nome', 'teste')
-                    )
+                    resultado["video"] = self._renomear_video(resultado["video"], config.get('nome', 'teste'))
                 
         except Exception as e:
             resultado["erro"] = str(e)
@@ -416,42 +455,26 @@ class TestadorJSON:
             if modo_debug:
                 print(f"ERRO CRITICO: {e}")
         
-        # Calcula tempo total de execução
         resultado["tempo_execucao"] = (datetime.now() - inicio).total_seconds()
         resultado["screenshots"] = self._listar_screenshots()
         
-        # Gera relatório final
         self._gerar_relatorio(resultado)
         return resultado
     
     def _avaliar_pre_condicao(self, pre_condicao):
-        """
-        Avalia uma pré-condição simples.
-        
-        Args:
-            pre_condicao (str): Pré-condição a ser avaliada, ex: "{{numero_processo}} != null"
-        
-        Returns:
-            bool: True se pré-condição for atendida, False caso contrário
-        """
+        """Avalia uma pré-condição simples."""
         try:
-            # Avalia condições simples
             if "!=" in pre_condicao:
                 partes = pre_condicao.split("!=")
                 if len(partes) == 2:
                     esquerda = partes[0].strip()
                     direita = partes[1].strip()
-                    
-                    # Remove aspas
                     if (direita.startswith("'") and direita.endswith("'")) or \
                        (direita.startswith('"') and direita.endswith('"')):
                         direita = direita[1:-1]
-                    
-                    # Avalia
                     valor_esquerda = self._obter_valor_condicao(esquerda)
                     return valor_esquerda != direita
             
-            # Condição padrão: se existe e não é vazio
             valor = self._obter_valor_condicao(pre_condicao.strip())
             return bool(valor)
             
@@ -460,16 +483,6 @@ class TestadorJSON:
             return False
     
     def _obter_valor_condicao(self, expressao):
-        """
-        Obtém valor de uma expressão para avaliação de condições.
-        
-        Args:
-            expressao (str): Expressão a ser avaliada
-        
-        Returns:
-            Valor da expressão
-        """
-        # Remove chaves se for referência a variável
         if expressao.startswith("{{") and expressao.endswith("}}"):
             var_nome = expressao[2:-2].strip()
             return self.variaveis.get(var_nome)
@@ -477,67 +490,44 @@ class TestadorJSON:
             return expressao
     
     def _substituir_variaveis_ambiente(self, config):
-        """
-        Substitui placeholders ${VARIAVEL} por valores do arquivo .env nos passos do teste.
-        
-        Agora suporta tanto estrutura antiga (passos) quanto nova (cenarios).
-        """
         def substituir_em_passos(passos_lista):
-            """Substitui variáveis em uma lista de passos."""
             for passo in passos_lista:
-                # Substitui em campos 'valor'
                 if 'valor' in passo and isinstance(passo['valor'], str):
                     valor = passo['valor']
                     if valor.startswith('${') and valor.endswith('}'):
-                        var_name = valor[2:-1]  # Remove ${ e }
+                        var_name = valor[2:-1]
                         env_value = os.getenv(var_name)
                         if env_value:
                             passo['valor'] = env_value
                         else:
-                            raise ValueError(
-                                f"Variavel de ambiente '{var_name}' nao encontrada no arquivo .env. "
-                                f"Certifique-se de que o arquivo .env existe e contem a variavel {var_name}."
-                            )
+                            raise ValueError(f"Variavel de ambiente '{var_name}' nao encontrada.")
                 
-                # Substitui em campos 'url' também (caso necessário)
                 if 'url' in passo and isinstance(passo['url'], str):
                     url = passo['url']
                     if '${' in url and '}' in url:
-                        # Substitui múltiplas variáveis na URL se necessário
                         def substituir_var(match):
                             var_name = match.group(1)
                             env_value = os.getenv(var_name)
                             if env_value:
                                 return env_value
                             else:
-                                raise ValueError(
-                                    f"Variavel de ambiente '{var_name}' nao encontrada no arquivo .env."
-                                )
+                                raise ValueError(f"Variavel '{var_name}' nao encontrada.")
                         passo['url'] = re.sub(r'\$\{(\w+)\}', substituir_var, url)
         
-        # Verifica estrutura e substitui variáveis
         if 'passos' in config:
-            # Estrutura antiga
             substituir_em_passos(config['passos'])
         elif 'cenarios' in config:
-            # Estrutura nova
             for cenario in config['cenarios']:
                 if 'passos' in cenario:
                     substituir_em_passos(cenario['passos'])
         
         return config
     
-    def _inicializar_navegador(self, playwright, navegador, caminho_navegador, 
-                              headless, browser_config):
-        """
-        Inicializa o navegador especificado com as configurações fornecidas.
-        """
+    def _inicializar_navegador(self, playwright, navegador, caminho_navegador, headless, browser_config):
         slow_mo = browser_config.get('slow_motion', 0)
         
-        # Configuração para Brave
         if navegador == "brave" or caminho_navegador:
             if not caminho_navegador:
-                # Caminhos padrão do Brave no Windows
                 caminhos_brave = [
                     r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe",
                     r"C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe",
@@ -550,27 +540,19 @@ class TestadorJSON:
             
             if caminho_navegador and os.path.exists(caminho_navegador):
                 print(f"Usando Brave: {caminho_navegador}\n")
-                return playwright.chromium.launch(
-                    headless=headless,
-                    slow_mo=slow_mo,
-                    executable_path=caminho_navegador
-                )
+                return playwright.chromium.launch(headless=headless, slow_mo=slow_mo, executable_path=caminho_navegador)
             else:
                 print("Aviso: Brave nao encontrado, usando Chromium padrao\n")
                 return playwright.chromium.launch(headless=headless, slow_mo=slow_mo)
         
-        # Outros navegadores
         elif navegador == "firefox":
             return playwright.firefox.launch(headless=headless, slow_mo=slow_mo)
         elif navegador == "webkit":
             return playwright.webkit.launch(headless=headless, slow_mo=slow_mo)
-        else:  # chromium padrão
+        else:
             return playwright.chromium.launch(headless=headless, slow_mo=slow_mo)
     
     def _configurar_contexto(self, browser_config, gravar_video):
-        """
-        Configura opções do contexto do navegador otimizadas para PDFs.
-        """
         context_options = {
             "viewport": {
                 "width": browser_config.get('largura', 1280),
@@ -578,8 +560,8 @@ class TestadorJSON:
             },
             "locale": browser_config.get('idioma', 'pt-BR'),
             "permissions": ["clipboard-read", "clipboard-write"],
-            "bypass_csp": True,  # Importante para PDFs
-            "accept_downloads": True,  # Permite download de PDFs
+            "bypass_csp": True,
+            "accept_downloads": True,
             "ignore_https_errors": True
         }
         
@@ -593,28 +575,17 @@ class TestadorJSON:
         return context_options
     
     def _executar_passo(self, page, passo, numero, resultado, modo_debug=False):
-        """
-        Executa um passo individual do teste.
-        
-        Returns:
-            Page ou None: Retorna objeto Page se houve troca de aba, senão None
-        """
         acao = passo['acao']
         
-        # CORREÇÃO: Para passos de comentário sem descrição, gera uma descrição baseada na mensagem
         if acao == 'comentario' and 'descricao' not in passo:
             mensagem = passo.get('mensagem', '')
             tipo = passo.get('tipo', 'info')
-            
-            # Remove caracteres de separação (=) e espaços extras
             mensagem_limpa = mensagem.strip('= ').strip()
             
             if tipo == 'separador':
-                # Extrai o texto entre os separadores "=========="
                 if '==========' in mensagem:
                     partes = mensagem.split('==========')
                     if len(partes) >= 3:
-                        # Texto entre os separadores
                         texto_central = partes[1].strip()
                         if texto_central:
                             descricao = texto_central
@@ -631,7 +602,6 @@ class TestadorJSON:
             elif tipo == 'fim_cenario':
                 descricao = "Fim do cenario"
             else:
-                # Para outros tipos, usa a mensagem (limitada a 40 caracteres)
                 if mensagem_limpa:
                     if len(mensagem_limpa) > 40:
                         descricao = mensagem_limpa[:37] + "..."
@@ -640,10 +610,8 @@ class TestadorJSON:
                 else:
                     descricao = f"Comentario {numero}"
         else:
-            # Usa a descrição fornecida no passo, ou padrão
             descricao = passo.get('descricao', f'Passo {numero}')
         
-        # Adiciona informação do cenário se disponível
         cenario_info = ""
         if '_cenario' in passo:
             cenario_info = f" [{passo['_cenario']}]"
@@ -656,10 +624,8 @@ class TestadorJSON:
         self._log(f"Executando: {descricao}", "info")
         
         try:
-            # Substitui variáveis dinâmicas antes de executar
             passo = self._substituir_variaveis_passo(passo)
             
-            # Executa a ação correspondente
             if acao == 'comentario':
                 mensagem = self._substituir_texto(passo.get('mensagem', ''))
                 tipo = passo.get('tipo', 'info')
@@ -675,16 +641,41 @@ class TestadorJSON:
                 else:
                     print(f"   [COMENTARIO] {mensagem}")
                 
-                # Adiciona uma pequena pausa para visualização
                 page.wait_for_timeout(100)
             
             elif acao == 'log':
                 mensagem = self._substituir_texto(passo.get('mensagem', ''))
                 nivel = passo.get('nivel', 'INFO')
                 print(f"   [{nivel}] {mensagem}")
-            
+             
             elif acao == 'goto':
                 page.goto(passo['url'])
+
+            elif acao == 'busca_fracionada':
+                lista_tentativas = passo['tentativas']
+                seletor_campo = passo['seletor']
+                
+                # Usamos o .get() para que o botao seja opcional. Se nao existir no JSON, ele retorna None
+                seletor_botao = passo.get('botao_pesquisar')
+                
+                for pedaco_email in lista_tentativas:
+                    print(f"   Testando fragmento: {pedaco_email}")
+                    
+                    page.fill(seletor_campo, "")
+                    page.fill(seletor_campo, pedaco_email)
+                    
+                    # O robo so clica se voce tiver configurado um botao no JSON
+                    if seletor_botao:
+                        page.click(seletor_botao)
+                    
+                    # Aguarda 1.5 segundos para o sistema processar a busca automatica
+                    page.wait_for_timeout(1500)
+                    
+                    # Verifica se o erro critico apareceu na tela
+                    if page.locator("text=Ocorreu um erro interno na aplicação").is_visible():
+                        # Pega o texto do erro da tela e FORCA a quebra do teste
+                        texto_erro = page.locator("text=Ocorreu um erro interno na aplicação").inner_text()
+                        raise Exception(f"Quebra ao buscar '{pedaco_email}'. Erro em tela: {texto_erro}")
 
             elif acao == 'validar_indexacao_api':
                 seletor_input = passo['seletor']
@@ -699,17 +690,12 @@ class TestadorJSON:
                         
                 arquivo_historico = f"evidence/logs/{ambiente}/quant_prop_ano.json"
             
-                # 1. Escuta a rede AGUARDANDO a requisição disparar, e ENTÃO preenche o campo
                 with page.expect_response(lambda response: url_parcial in response.url) as response_info:
                     page.fill(seletor_input, ano_pesquisa)
             
-                # 2. Pega o objeto da resposta e já converte o corpo direto para um dicionário Python
                 corpo_json = response_info.value.json()
-            
-                # 3. Extrai o número total de dentro do JSON
                 total_atual = int(corpo_json[chave_total])
                 
-                # 4. Lógica de comparação com execuções anteriores
                 historico = {}
                 if os.path.exists(arquivo_historico):
                     with open(arquivo_historico, 'r', encoding='utf-8') as f:
@@ -721,11 +707,10 @@ class TestadorJSON:
                     
                     if total_atual < total_anterior:
                         raise AssertionError(
-                            f"Falha na indexação! O ano {ano_pesquisa} tinha {total_anterior} proposições, "
+                            f"Falha na indexacao! O ano {ano_pesquisa} tinha {total_anterior} proposicoes, "
                             f"mas a API retornou apenas {total_atual}."
                         )
                     
-                # 5. Salva o novo registro
                 novo_registro = {
                     "data_execucao": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "total": total_atual
@@ -742,13 +727,8 @@ class TestadorJSON:
 
             elif acao == 'fill':
                 valor = passo['valor']
-                
-                # Se o valor começar com "@arquivo:" ou "@file:", carrega o texto do arquivo
                 if valor.startswith('@arquivo:') or valor.startswith('@file:'):
-                    # Remove o prefixo
                     caminho_arquivo = valor.replace('@arquivo:', '').replace('@file:', '').strip()
-
-                    # Usa a raiz do projeto como base (sobe 2 níveis: testador/ -> src/ -> raiz)
                     raiz_projeto = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                     caminho_completo = os.path.join(raiz_projeto, caminho_arquivo)
                     caminho_completo = os.path.normpath(caminho_completo)
@@ -757,7 +737,6 @@ class TestadorJSON:
                         print(f"Procurando arquivo: {caminho_completo}")
 
                     if not os.path.exists(caminho_completo):
-                        # Tenta subir mais um nível (caso esteja em subpasta)
                         raiz_projeto = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
                         caminho_completo = os.path.join(raiz_projeto, caminho_arquivo)
                         caminho_completo = os.path.normpath(caminho_completo)
@@ -772,20 +751,12 @@ class TestadorJSON:
                         print(f"Arquivo carregado: {caminho_completo}")
                         print(f"Tamanho: {len(valor)} caracteres")
                 
-                # Preenche o campo com o texto
                 page.fill(passo['seletor'], valor)
-            
+             
             elif acao == 'fill_devexpress':
-                """
-                Preenche campo DevExpress que abre em modal.
-                """
                 valor = passo['valor']
-                
-                # Se o valor começar com "@arquivo:" ou "@file:", carrega o texto do arquivo
                 if valor.startswith('@arquivo:') or valor.startswith('@file:'):
                     caminho_arquivo = valor.replace('@arquivo:', '').replace('@file:', '').strip()
-                    
-                    # Usa a raiz do projeto como base (sobe 2 níveis)
                     raiz_projeto = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                     caminho_completo = os.path.join(raiz_projeto, caminho_arquivo)
                     caminho_completo = os.path.normpath(caminho_completo)
@@ -794,7 +765,6 @@ class TestadorJSON:
                         print(f"Procurando arquivo: {caminho_completo}")
                     
                     if not os.path.exists(caminho_completo):
-                        # Tenta subir mais um nível
                         raiz_projeto = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
                         caminho_completo = os.path.join(raiz_projeto, caminho_arquivo)
                         caminho_completo = os.path.normpath(caminho_completo)
@@ -804,19 +774,16 @@ class TestadorJSON:
                     
                     with open(caminho_completo, 'r', encoding='utf-8') as f:
                         valor = f.read()
-                    
+                     
                     if modo_debug:
                         print(f"Arquivo carregado: {caminho_completo}")
                         print(f"Tamanho: {len(valor)} caracteres")
                 
-                # Aguarda o elemento principal aparecer na modal
                 seletor_base = passo['seletor']
                 page.wait_for_selector(seletor_base, timeout=10000)
                 page.wait_for_timeout(500)
                 
-                # Tenta focar no elemento editável (dxrePage) dentro do container
                 seletor_editavel = f"{seletor_base} .dxrePage"
-                
                 try:
                     page.wait_for_selector(seletor_editavel, timeout=2000)
                     seletor_final = seletor_editavel
@@ -827,19 +794,16 @@ class TestadorJSON:
                     if modo_debug:
                         print(f"Usando seletor base: {seletor_base}")
                 
-                # Foca no elemento
                 elemento = page.locator(seletor_final)
                 elemento.click()
                 page.wait_for_timeout(500)
                 
-                # Limpa o campo se necessário
                 if passo.get('limpar_antes', True):
                     page.keyboard.press('Control+A')
                     page.wait_for_timeout(200)
                     page.keyboard.press('Delete')
                     page.wait_for_timeout(200)
                 
-                # Digita o texto
                 delay = passo.get('delay', 0)
                 page.keyboard.type(valor, delay=delay)
                 
@@ -853,33 +817,31 @@ class TestadorJSON:
                 resultado_script = page.evaluate(passo['script'])
                 if 'variavel' in passo:
                     self.variaveis[passo['variavel']] = resultado_script
-                    
-                    # Print simplificado para variáveis de debug de ordenação
                     nome_var = passo['variavel']
+                   
                     if nome_var == 'resultado_completo':
-                        # Só mostra se falhou
                         if isinstance(resultado_script, dict) and not resultado_script.get('match', True):
                             print(f"\n{'='*60}")
-                            print(f"⚠️  ORDENAÇÃO FALHOU - Debug")
+                            print(f"ORDENACAO FALHOU - Debug")
                             print(f"{'='*60}")
                             print(f"Total ASC: {resultado_script.get('totalASC', 'N/A')} | Total DESC: {resultado_script.get('totalDESC', 'N/A')}")
                             
                             asc = resultado_script.get('primeiros5ASC', [])
                             desc = resultado_script.get('primeiros5DESC', [])
-                            
+                             
                             print(f"\nPrimeiros 5 ASC inicial: {asc}")
                             print(f"Primeiros 5 DESC:        {desc}")
-                            print(f"Últimos 5 DESC:          {resultado_script.get('ultimos5DESC', [])}")
-                            print(f"\n💡 DESC deve ser o inverso alfabético de ASC")
+                            print(f"Ultimos 5 DESC:          {resultado_script.get('ultimos5DESC', [])}")
+                            print(f"\nDESC deve ser o inverso alfabetico de ASC")
                             print(f"{'='*60}\n")
+    
                         elif isinstance(resultado_script, dict) and resultado_script.get('match', False):
-                            print(f"✓ Ordenação validada: ASC ↔ DESC funcionando corretamente")
+                            print(f"Ordenacao validada: ASC <-> DESC funcionando corretamente")
                     
                     elif nome_var in ['itens_asc', 'itens_iniciais', 'itens_apos_primeiro_clique', 'itens_desc']:
-                        # Mostra primeiros 5 itens
                         if isinstance(resultado_script, list):
                             primeiros_5 = resultado_script[:5]
-                            print(f"  → {nome_var}: {len(resultado_script)} itens")
+                            print(f"  -> {nome_var}: {len(resultado_script)} itens")
                             for i, item in enumerate(primeiros_5, 1):
                                 print(f"     {i}. {item}")
                     
@@ -916,7 +878,7 @@ class TestadorJSON:
                     nome_screenshot = f"{self.cenario_atual}_{nome_screenshot}"
                 nome_screenshot = self._substituir_texto(nome_screenshot)
                 self._tirar_screenshot(page, nome_screenshot)
-            
+             
             elif acao == 'assert':
                 self._executar_assert(page, passo)
             
@@ -1116,7 +1078,7 @@ class TestadorJSON:
                 except Exception as e:
                     if modo_debug:
                         print(f"Metodo direto falhou: {e}")
-            
+             
             elif acao == 'javascript':
                 page.evaluate(passo['codigo'])
             
@@ -1153,9 +1115,24 @@ class TestadorJSON:
             self._tirar_screenshot(page, f'erro_passo_{numero}')
             if modo_debug:
                 print(f"DEBUG - Stack trace: {e.__traceback__}")
+            
+            # --- REDE DE PROTECAO: Acionada em qualquer falha deste passo ---
+            print(f"\n[!] O teste abortou no passo: {descricao}")
+            print("[Background] Solicitando analise da IA e criacao do card...")
+
+            # Chama a IA para formular o problema (mandando o erro que capturamos do sistema)
+            descricao_bug_ia = self.analisar_erro_com_ia(descricao, str(e))
+            
+            # Monta o titulo padronizado
+            titulo_bug = f"[Automacao QA] Falha no passo {numero}: {descricao}"
+            
+            # Manda abrir o card no Azure
+            self.abrir_card_azure(titulo_bug, descricao_bug_ia)
+            # ----------------------------------------------------------------
+
             raise Exception(f"Erro no passo {numero} ({descricao}): {e}")
     
-    # ===== MÉTODOS PARA INTERCEPTAÇÃO DA API =====
+    # ===== METODOS PARA INTERCEPTACAO DA API =====
     
     def _capturar_pdf_da_api(self, page, passo, modo_debug=False):
         if modo_debug:
@@ -1203,7 +1180,7 @@ class TestadorJSON:
                                         }
                                     }
                                 """, list(response_body))
-                                
+                                 
                                 if blob_url:
                                     pdf_blob_url = blob_url
                                     if modo_debug:
@@ -1224,7 +1201,7 @@ class TestadorJSON:
         
         timeout = passo.get('timeout', 20000)
         start_time = datetime.now()
-        
+         
         while not pdf_blob_url and (datetime.now() - start_time).total_seconds() * 1000 < timeout:
             page.wait_for_timeout(500)
             if not pdf_blob_url:
@@ -1353,7 +1330,6 @@ class TestadorJSON:
         page.evaluate("""
             (function() {
                 console.log('=== MONITOR DE REQUISICOES ATIVADO ===');
-                
                 const originalFetch = window.fetch;
                 window.fetch = function(...args) {
                     const url = args[0];
@@ -1365,7 +1341,6 @@ class TestadorJSON:
                         headers: options.headers,
                         body: options.body ? (typeof options.body === 'string' ? options.body : 'Binary/FormData') : null
                     });
-                    
                     return originalFetch.apply(this, args).then(response => {
                         console.log('FETCH RESPONSE:', {
                             url: response.url,
@@ -1412,7 +1387,6 @@ class TestadorJSON:
                         method: this._requestMethod,
                         body: body ? (typeof body === 'string' ? body : 'Binary/FormData') : null
                     });
-                    
                     this.addEventListener('load', function() {
                         console.log('XHR RESPONSE:', {
                             url: this._requestUrl,
@@ -1430,7 +1404,6 @@ class TestadorJSON:
                             }
                         }
                     });
-                    
                     return originalSend.apply(this, arguments);
                 };
                 
@@ -1459,17 +1432,16 @@ class TestadorJSON:
                 inputs.forEach(input => {
                     const name = input.name;
                     const value = input.value;
+                    
                     if (name && value) {
                         const simpleName = name.replace(/data\\[camposDoFormulario\\]\\[/, '').replace(/\\]/g, '');
                         data[simpleName] = value;
                     }
                 });
-                
                 const urlParams = new URLSearchParams(window.location.search);
                 urlParams.forEach((value, key) => {
                     data[key] = value;
                 });
-                
                 const idMatch = window.location.href.match(/(\\d+)/);
                 if (idMatch) {
                     data.documentId = idMatch[1];
@@ -1506,16 +1478,13 @@ class TestadorJSON:
                         headers: headers,
                         body: JSON.stringify(documentData)
                     });
-                    
                     console.log('Resposta da API:', {
                         status: response.status,
                         statusText: response.statusText,
                         headers: Object.fromEntries(response.headers.entries())
                     });
-                    
                     if (response.ok) {
                         const contentType = response.headers.get('content-type');
-                        
                         if (contentType && contentType.includes('application/pdf')) {
                             const blob = await response.blob();
                             const blobUrl = URL.createObjectURL(blob);
@@ -1573,7 +1542,7 @@ class TestadorJSON:
         
         return nova_aba
     
-    # ===== MÉTODOS DE ESTRATÉGIAS DE PDF =====
+    # ===== METODOS DE ESTRATEGIAS DE PDF =====
     
     def _estrategia_chrome_pdf_viewer(self, page, pagina, modo_debug):
         resultado = page.evaluate(f"""
@@ -1722,7 +1691,6 @@ class TestadorJSON:
                             check: () => document.querySelector('object[data*=".pdf"]') !== null
                         }
                     ];
-                    
                     for (const detector of detectors) {
                         if (detector.check()) {
                             return detector.name;

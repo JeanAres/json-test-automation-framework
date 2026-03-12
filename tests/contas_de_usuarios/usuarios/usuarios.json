@@ -1,0 +1,387 @@
+{
+    "nome": "Teste Completo - Login + Testar todas as funcionabilidades na sub-categoria 'Usuários'",
+    "descricao": "Faz login automaticamente e depois testa todos os funcionamentos dísponiveis na sub-categoria 'Usuários'",
+    "configuracoes":{
+        "timeout":20000,
+        "slow_motion":1000,
+        "largura":1366,
+        "altura":768,
+        "idioma":"pt-BR"
+    },
+    "passos": [
+        {
+            "acao": "goto",
+            "url": "{{URL_BASE}}/",
+            "descricao": "Acessar eProd"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500,
+            "descricao": "Aguardar página de login carregar"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "01_tela_login",
+            "descricao": "Screenshot da tela de login"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='userName']",
+            "valor": "{{ADMIN_USER}}",
+            "descricao": "Preencher usuário"
+        },
+        {
+            "acao": "fill",
+            "seletor": "[name='password']",
+            "valor": "{{ADMIN_PASS}}",
+            "descricao": "Preencher senha"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Entrar')",
+            "descricao": "Clicar em Entrar"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1400,
+            "descricao": "Aguardar login processar"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "02_apos_login",
+            "descricao": "Screenshot após login"
+        },
+        {
+            "acao": "click",
+            "seletor": "span:has-text('Contas de usuário')",
+            "descricao": "Abrir menu Contas de usuário"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1000,
+            "descricao": "Aguardar submenu abrir"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "03_menu_aberto",
+            "descricao": "Screenshot com menu aberto"
+        },
+        {
+            "acao": "click",
+            "seletor": "a[href='/accounts']",
+            "descricao": "Clicar em 'Usuários' no submenu"
+        },
+        {
+            "acao": "wait",
+            "tempo": 750,
+            "descricao": "Aguarda o sistema carregar a página de 'Usuários'"
+        },
+        {
+            "acao": "click",
+            "seletor": "div.count-records select",
+            "descricao": "Clica no limitador de registros por página"
+        },
+        {
+            "acao": "wait",
+            "tempo": 250,
+            "descricao": "Aguarda o sistema carregar o dropdown corretamente"
+        },
+        {
+            "acao": "select",
+            "seletor": "div.count-records select",
+            "valor": "20",
+            "descricao": "Aumenta o limitador de 10 para 20 registros"
+        },
+        {
+            "acao": "wait",
+            "tempo": 650,
+            "descricao": "Aguarda o sistema carregar a página com o novo limitador"
+        },
+        {
+            "acao": "comentario",
+            "mensagem": "=== VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "executar_script",
+            "script": "window.itensASC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensASC;",
+            "variavel": "itens_asc",
+            "descricao": "Captura ASC inicial"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "05_order_asc",
+            "descricao": "Screenshot da coluna 'Nome' em ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 1 - DESC"
+        },
+        {
+            "acao": "screenshot",
+            "nome": "06_order_desc",
+            "descricao": "Screenshot da coluna 'Nome' em DESC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500
+        },
+        {
+            "acao": "executar_script",
+            "script": "window.itensDESC = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); window.itensDESC;",
+            "variavel": "itens_desc",
+            "descricao": "Captura DESC"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Nome')",
+            "descricao": "Clique 2 - Volta ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 1500
+        },
+        {
+            "acao": "executar_script",
+            "script": "const itensASC2 = [...document.querySelectorAll('tbody tr')].map(row => row.cells[0]?.textContent.trim()).filter(t => t); const voltouParaASC = JSON.stringify(window.itensASC) === JSON.stringify(itensASC2); const resultado = { totalASC: window.itensASC.length, totalDESC: window.itensDESC.length, primeiros5ASC: window.itensASC.slice(0, 5), primeiros5DESC: window.itensDESC.slice(0, 5), ultimos5DESC: window.itensDESC.slice(-5), match: voltouParaASC }; console.log('Voltou para ASC?', voltouParaASC); resultado;",
+            "variavel": "resultado_completo",
+            "descricao": "Valida se voltou para ASC inicial"
+        },
+        {
+            "acao": "comentario",
+            "mensagem": "=== FIM DA VALIDAÇÃO DE ORDENAÇÃO - COLUNA NOME ===",
+            "tipo": "separador"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('E-mail')",
+            "descricao": "Clica na coluna 'E-mail' para ordenar em ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema fazer a ordenação"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('E-mail')",
+            "descricao": "Clica na coluna 'E-mail' para ordenar em DESC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema fazer a ordenação"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('CPF/CNPJ')",
+            "descricao": "Clica na coluna 'CPF/CNPJ' para ordenar em ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema fazer a ordenação"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('CPF/CNPJ')",
+            "descricao": "Clica na coluna 'CPF/CNPJ' para ordenar em DESC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema fazer a ordenação"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Tipo de conta')",
+            "descricao": "Clica na coluna 'Tipo de conta' para ordenar em ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema fazer a ordenação"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Tipo de conta')",
+            "descricao": "Clica na coluna 'Tipo de conta' para ordenar em DESC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema fazer a ordenação"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Situação')",
+            "descricao": "Clica na coluna 'Situação' para ordenar em ASC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema fazer a ordenação"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Situação')",
+            "descricao": "Clica na coluna 'Situação' para ordenar em DESC"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema fazer a ordenação"
+        },
+        {
+            "acao": "fill",
+            "seletor": "input[placeholder='Valor']",
+            "valor": "jean soares",
+            "descricao": "Digita o nome que deseja encontrar nos registros"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema carregar os registros"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Condição')",
+            "descricao": "Clica pra adicionar mais um componente de pesquisa"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-selector >> nth=2",
+            "descricao": "Abre o 2° dropdown"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o dropdown abrir completamente"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item[title='Tipo de conta']",
+            "descricao": "Seleciona filtro 'Tipo de conta'"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-selector >> nth=4",
+            "descricao": "Abre o 4° dropdown"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda carregar as opções no dropdown"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item[title='Administrador']",
+            "descricao": "Seleciona filtro 'Administrador'"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Pesquisar')",
+            "descricao": "Clica no botão de pesquisar"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema carregar os registros"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-selector >> nth=1",
+            "descricao": "Abre o 1° dropdown"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda carregar as opções no dropdown"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item[title='Diferente']",
+            "descricao": "Seleciona a condição de 'Diferente' no componente de busca por nome"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Pesquisar')",
+            "descricao": "Clica no botão de pesquisar"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema carregar os registros"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-selector >> nth=1",
+            "descricao": "Abre o 1° dropdown"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda carregar as opções no dropdown"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item[title='Não contém']",
+            "descricao": "Seleciona a condição de 'Não contém' no componente de busca por nome"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Pesquisar')",
+            "descricao": "Clica no botão de pesquisar"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o sistema carregar os registros"
+        },
+        {
+            "acao": "click",
+            "seletor": "button:has-text('Limpar')",
+            "descricao": "Clica em limpar os filtros utilizados"
+        },
+        {
+            "acao": "wait",
+            "tempo": 350,
+            "descricao": "Aguarda o sistema limpar os filtros"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-selector >> nth=0",
+            "descricao": "Abre o 1° dropdown"
+        },
+        {
+            "acao": "wait",
+            "tempo": 500,
+            "descricao": "Aguarda o dropdown abrir completamente"
+        },
+        {
+            "acao": "click",
+            "seletor": ".ant-select-item[title='E-mail']",
+            "descricao": "Seleciona filtro 'E-mail'"
+        },
+        {
+            "acao": "busca_fracionada",
+            "seletor": "input[placeholder='Valor']",
+            "tentativas": [
+                ".br",
+                ".com.br",
+                ".agapeconsultoria.com.br",
+                "jovens.agapeconsultoria.com.br",
+                "@jovens.agapeconsultoria.com.br",
+                ".soares@jovens.agapeconsultoria.com.br",
+                "jean.soares@jovens.agapeconsultoria.com.br"
+            ],
+            "descricao": "Insere fragmentos do e-mail em sequencia (ex: '.br', '.com.br', '@dominio') para validar a aceitacao de caracteres especiais no motor de busca"
+        }
+          
+    ]
+}
